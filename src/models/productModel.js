@@ -13,7 +13,8 @@ const PRODUCT_COLLECTION_SCHEMA = Joi.object({
   color: Joi.array().items(Joi.string().trim().strict()).default([]),
   size: Joi.array().items(Joi.number().positive()).default([]),
   image: Joi.array().items(Joi.string().uri().message('Each image must be valid')).max(10),
-  createAt: Joi.date().timestamp('javascript').default(Date.now),
+  importAt: Joi.date().timestamp('javascript').default(Date.now),
+  exportAt: Joi.date().timestamp('javascript').default(null),
   updateAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false)
 })
