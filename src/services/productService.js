@@ -31,7 +31,29 @@ const getDetails = async (productId) => {
   } catch (error) { throw error }
 }
 
+const getAllProduct = async () => {
+  try {
+    const products = await productModel.getAllProduct()
+
+    if ( !products || products.length === 0 ) throw new ApiError( StatusCodes.NOT_FOUND, 'Products not found')
+    return products
+  } catch (error) { throw error }
+}
+
+const getAllProductPage = async (page, limit) => {
+  try {
+    const products = await productModel.getAllProductPage(page, limit)
+
+    // console.log(products)
+
+    if ( !products ) throw new ApiError( StatusCodes.NOT_FOUND, 'Products not found')
+    return products
+  } catch (error) { throw error }
+}
+
 export const productService = {
   createNew,
-  getDetails
+  getDetails,
+  getAllProduct,
+  getAllProductPage
 }
