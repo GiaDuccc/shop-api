@@ -24,7 +24,30 @@ const getDetails = async (req, res, next) => {
   }
 }
 
+const getAllProduct = async (req, res, next) => {
+  try {
+    const products = await productService.getAllProduct()
+    res.status(StatusCodes.OK).json(products)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const getAllProductPage = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 12
+
+    const products = await productService.getAllProductPage(page, limit)
+    res.status(StatusCodes.OK).json(products)
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const productController = {
   createNew,
-  getDetails
+  getDetails,
+  getAllProduct,
+  getAllProductPage
 }

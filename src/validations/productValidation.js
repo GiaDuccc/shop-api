@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
-import { ApiError } from '~/utils/ApiError'
+import ApiError from '~/utils/ApiError'
 
 const createNew = async (req, res, next) => {
   const correctCondition = Joi.object({
@@ -10,7 +10,7 @@ const createNew = async (req, res, next) => {
       'string.min': 'Name min 3 chars (giaduc)',
       'string.max': 'Name max 50 chars (giaduc)'
     }),
-    desc: Joi.string().required().min(3).max(256).trim().strict(),
+    type: Joi.string().required().valid('sneaker', 'classic', 'running', 'basketball', 'football', 'boot').min(3).max(50).trim().strict().message({ 'any.only': 'Type must be one of the allowed values' }),
     brand: Joi.string().required().min(3).max(50).trim().strict(),
     price: Joi.number().min(0).required(),
     stock: Joi.number().min(0).required(),
@@ -22,7 +22,7 @@ const createNew = async (req, res, next) => {
     await correctCondition.validateAsync(req.body, { abortEarly: false })
     next()
   } catch (error) {
-    const errorMessage = new Error(error).message
+    const errorMessage = error.details.map(detail => detail.message).join(', ') || 'Validation failed'
     const customError = new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage)
     next(customError)
   }

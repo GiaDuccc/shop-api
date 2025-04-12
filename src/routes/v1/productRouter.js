@@ -6,9 +6,11 @@ import { productValidation } from '~/validations/productValidation'
 const Router = express.Router()
 
 Router.route('/')
-  .get((req, res) => {
-    res.status(StatusCodes.OK).json({ message: 'GET: API get products list' })
-  })
+  // .get((req, res) => {
+  //   res.status(StatusCodes.OK).json({ message: 'GET: API get products list' })
+  // })
+  // .get(productController.getAllProduct)
+  .get(productController.getAllProductPage)
   .post(productValidation.createNew, productController.createNew)
 
 Router.route('/:id')
