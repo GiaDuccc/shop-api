@@ -14,6 +14,8 @@ const createNew = async (req, res, next) => {
     brand: Joi.string().required().min(3).max(50).trim().strict(),
     price: Joi.number().min(0).required(),
     stock: Joi.number().min(0).required(),
+    image: Joi.array().items(Joi.string().pattern(/^[\w\s.-]+\.(png|jpg|jpeg)$/i).message('Each image must be valid')).max(10).default([]),
+    imageDetail: Joi.array().items(Joi.string().pattern(/^[\w\s.-]+\.(png|jpg|jpeg)$/i).message('Each imageDetail must be valid')).max(6).default([]),
     color: Joi.array().items(Joi.string().trim().strict()).default([]),
     size: Joi.array().items(Joi.number().positive()).default([])
   })
