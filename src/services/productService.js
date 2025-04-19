@@ -6,9 +6,17 @@ import { slugify } from '~/utils/formatters'
 
 const createNew = async (reqBody) => {
   try {
+    let stock = 0
+    reqBody.colors.forEach(color => {
+      color.sizes.forEach(size => {
+        stock += size.quantity
+      })
+    })
+
     const newProduct = {
       ...reqBody,
-      slug: slugify(reqBody.name)
+      slug: slugify(reqBody.name),
+      stock: stock
     }
 
     const createProduct = await productModel.createNew(newProduct)

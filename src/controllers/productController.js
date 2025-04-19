@@ -50,7 +50,7 @@ const getAllProductPage = async (req, res, next) => {
     // eslint-disable-next-line no-unused-vars
     let { page: _p, limit: _l, ...filters } = req.query
 
-    console.log(filters)
+    // console.log(filters)
 
     const products = await productService.getAllProductPage(page, limit, filters)
     res.status(StatusCodes.OK).json(products)

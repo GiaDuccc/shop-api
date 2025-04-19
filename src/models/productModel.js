@@ -7,16 +7,33 @@ import ApiError from '~/utils/ApiError'
 
 const PRODUCT_COLLECTION_NAME = 'products'
 const PRODUCT_COLLECTION_SCHEMA = Joi.object({
-  name: Joi.string().required().min(3).max(50).trim().strict(),
-  slug: Joi.string().required().min(3).trim().strict(),
-  type: Joi.string().required().valid('sneaker', 'classic', 'running', 'basketball', 'football', 'boot').min(3).max(50).trim().strict().message({ 'any.only': 'Type must be one of the allowed values' }),
-  brand: Joi.string().required().min(3).max(50).trim().strict(),
+  name: Joi.string().min(3).max(50).trim().required(),
+  highLight: Joi.string().max(255).trim().default(''),
+  desc: Joi.string().trim().default(''),
+  type: Joi.string().valid('sneaker', 'classic', 'running', 'basketball', 'football', 'boot').required(),
+  brand: Joi.string().min(3).max(50).trim().required().lowercase(),
   price: Joi.number().min(0).required(),
-  stock: Joi.number().min(0).required(),
-  color: Joi.array().items(Joi.string().trim().strict()).default([]),
-  size: Joi.array().items(Joi.number().positive()).default([]),
-  image: Joi.array().items(Joi.string().pattern(/^[\w\s.-]+\.(png|jpg|jpeg)$/i).message('Each image must be valid')).max(10).default([]),
-  imageDetail: Joi.array().items(Joi.string().pattern(/^[\w\s.-]+\.(png|jpg|jpeg)$/i).message('Each imageDetail must be valid')).max(6).default([]),
+  stock: Joi.number().min(1),
+  colors: Joi.array().items(
+    Joi.object({
+      color: Joi.string().trim().required(),
+      colorHex: Joi.string().pattern(/^#[0-9A-Fa-f]{6}$/).default('#97bfc700'),
+      image: Joi.string()
+        .pattern(/^[\w\s.-]+\.(png|jpg|jpeg|avif)$/i)
+        .default(''),
+      imageDetail: Joi.array().items(
+        Joi.string()
+          .pattern(/^[\w\s.-]+\.(png|jpg|jpeg|avif)$/i)
+      ).max(6).default([]),
+      sizes: Joi.array().items(
+        Joi.object({
+          size: Joi.number().positive().required(),
+          quantity: Joi.number().min(0).required()
+        })
+      ).min(1).required()
+    })
+  ).min(1).required(),
+  slug: Joi.string().required().min(3).trim().strict(),
   importAt: Joi.date().timestamp('javascript').default(Date.now),
   exportAt: Joi.date().timestamp('javascript').default(null),
   updateAt: Joi.date().timestamp('javascript').default(null),
@@ -31,12 +48,14 @@ const createNew = async (data) => {
   try {
     const validData = await validateBeforeCreate(data)
 
-    const exist = await GET_DB().collection(PRODUCT_COLLECTION_NAME).findOne({
-      name: data.name
-    })
+    // const exist = await GET_DB().collection(PRODUCT_COLLECTION_NAME).findOne({
+    //   name: data.name
+    // })
 
-    if ( exist ) {
-      throw new ApiError(StatusCodes.CONFLICT, 'Tên sản phẩm đã tồn tại')
+    const exist = false
+
+    if (exist) {
+      throw new ApiError(StatusCodes.CONFLICT, 'Sản phẩm đã tồn tại')
     }
     else {
       const createdProduct = await GET_DB().collection(PRODUCT_COLLECTION_NAME).insertOne(validData)
@@ -67,7 +86,6 @@ const getDetails = async (id) => {
         }
       }
     ]).toArray()
-    // console.log(result)
     return result[0] || null
   } catch (error) {
     throw new Error(error)
@@ -88,7 +106,7 @@ const getAllProduct = async () => {
 
 const getAllProductFilter = async (filters) => {
   try {
-
+    console.log('filters', filters)
     const matchConditions = {}
 
     Object.keys(filters).forEach(key => {
@@ -146,6 +164,16 @@ const getAllProductPage = async (page, limit, filters) => {
           }
         }
       }
+      else if (key === 'color') {
+        if (typeof value === 'string' && value.includes(',')) {
+          const realKey = `colors.${key}`
+          matchConditions[realKey] = { $in: value.split(',') }
+        }
+        else {
+          const realKey = `colors.${key}`
+          matchConditions[realKey] = value
+        }
+      }
       else {
         if (value) {
           if (typeof value === 'string' && value.includes(',')) {
@@ -157,8 +185,9 @@ const getAllProductPage = async (page, limit, filters) => {
         }
       }
 
-
     })
+
+    // console.log('matchConditions', matchConditions)
 
     const result = await GET_DB().collection(PRODUCT_COLLECTION_NAME).aggregate([
       { $match: matchConditions }
