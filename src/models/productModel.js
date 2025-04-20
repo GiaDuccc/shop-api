@@ -106,7 +106,7 @@ const getAllProduct = async () => {
 
 const getAllProductFilter = async (filters) => {
   try {
-    console.log('filters', filters)
+    // console.log('filters', filters)
     const matchConditions = {}
 
     Object.keys(filters).forEach(key => {
@@ -141,9 +141,10 @@ const getAllProductFilter = async (filters) => {
   }
 }
 
-const getAllProductPage = async (page, limit, filters) => {
+const getAllProductPage = async (page, limit, filterOptions) => {
   try {
     const skip = (page - 1) * limit
+    const { sort, ...filters } = filterOptions
 
     const matchConditions = {}
 
@@ -187,11 +188,40 @@ const getAllProductPage = async (page, limit, filters) => {
 
     })
 
-    // console.log('matchConditions', matchConditions)
+    let sortOption = {}
 
-    const result = await GET_DB().collection(PRODUCT_COLLECTION_NAME).aggregate([
-      { $match: matchConditions }
-    ]).skip(skip).limit(limit).toArray()
+    switch (sort) {
+    case 'newest':
+      sortOption = { importAt: -1 }
+      break
+    case 'oldest':
+      sortOption = { importAt: 1 }
+      break
+    case 'low-high':
+      sortOption = { price: 1 }
+      break
+    case 'high-low':
+      sortOption = { price: -1 }
+      break
+    default:
+      sortOption = {}
+    }
+
+    const allFilter = [
+      { $match: matchConditions },
+      { $skip: skip },
+      { $limit: limit }
+    ]
+
+    if (Object.keys(sortOption).length > 0) {
+      allFilter.push({ $sort: sortOption })
+    }
+
+    // console.log('matchConditions', matchConditions)
+    // console.log('sortOption', sortOption)
+    // console.log('allFilter', allFilter)
+
+    const result = await GET_DB().collection(PRODUCT_COLLECTION_NAME).aggregate(allFilter).toArray()
 
 
     const total = await GET_DB().collection(PRODUCT_COLLECTION_NAME).countDocuments(matchConditions)
