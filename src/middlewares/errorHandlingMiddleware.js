@@ -9,6 +9,7 @@ export const errorHandlingMiddleware = (err, req, res, next) => {
   const responseError = {
     statusCode: err.statusCode,
     message: err.message || StatusCodes[err.statusCode], // Nếu lỗi mà không có message thì lấy ReasonPhrases chuẩn theo mã Status Code
+    errors: err.errors,
 
     // chỉ định lỗi code ở dòng bao nhiêu (tương đối, không chuẩn 100% nhưng có còn hơn không)
     stack: err.stack
