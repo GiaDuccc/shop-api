@@ -3,12 +3,14 @@ import { slugify } from '~/utils/formatters'
 import { customerModel } from '~/models/customerModel'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
+import bcrypt from 'bcryptjs'
 
 const createNew = async (reqBody) => {
   try {
     const newCustomer = {
       ...reqBody,
-      slug: slugify(reqBody.userName)
+      slug: slugify(`${reqBody.lastName}-${reqBody.firstName}`),
+      password: await bcrypt.hashSync(reqBody.password, 10)
     }
 
     const createdCustomer = await customerModel.createNew(newCustomer)
@@ -16,6 +18,18 @@ const createNew = async (reqBody) => {
     const getNewCustomer = await customerModel.findOneById(createdCustomer.insertedId)
 
     return getNewCustomer
+  } catch (error) { throw error }
+}
+
+const login = async (reqBody) => {
+  try {
+    const customerLogin = await customerModel.login(reqBody)
+
+    if (!customerLogin) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid Email or Password.')
+    }
+
+    return customerLogin
   } catch (error) { throw error }
 }
 
@@ -33,5 +47,6 @@ const getDetails = async (customerId) => {
 
 export const customerService = {
   createNew,
-  getDetails
+  getDetails,
+  login
 }

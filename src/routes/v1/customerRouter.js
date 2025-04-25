@@ -14,4 +14,7 @@ Router.route('/')
 Router.route('/:id')
   .get(customerController.getDetails)
 
+Router.route('/login')
+  .post(customerController.login)
+
 export const customerRouter = Router

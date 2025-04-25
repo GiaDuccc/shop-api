@@ -1,21 +1,39 @@
 import Joi from 'joi'
 import { GET_DB } from '~/config/mongodb'
 import { ObjectId } from 'mongodb'
+import ApiError from '~/utils/ApiError'
+import { StatusCodes } from 'http-status-codes'
+import bcrypt from 'bcryptjs'
 
 const CUSTOMER_COLLECTION_NAME = 'customers'
 const CUSTOMER_COLLECTION_SCHEMA = Joi.object({
-  userName: Joi.string().required().min(5).max(50).trim().strict(),
-  password: Joi.string().required().min(8).max(256).trim().strict(),
-  slug: Joi.string().required().min(3).trim().strict(),
-  email: Joi.string().email({ tlds: { allow: false } }).trim().lowercase().messages({
+  lastName: Joi.string().required().max(256).trim(),
+  firstName: Joi.string().required().max(256).trim(),
+  country: Joi.string().required().max(2).trim(),
+  dob: Joi.date().less('now').greater('1-1-1900').messages({
+    'date.base': 'Date of birth must be a valid date',
+    'date.less': 'Date of birth must be in the past',
+    'any.required': 'Date of birth is required'
+  }),
+  email: Joi.string().email({ tlds: { allow: true } }).trim().lowercase().messages({
     'string.email': 'Email must be a valid email address'
   }),
+  phone: Joi.string().pattern(/^\+?[0-9]{10,15}$/).required(),
+  password: Joi.string().min(8)
+    .pattern(new RegExp('^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])'))
+    .required()
+    .messages({
+      'string.min': 'Password must be at least 8 characters',
+      'string.pattern.base': 'Password must contain at least 1 uppercase letter, 1 number, and 1 special character',
+      'any.required': 'Password is required'
+    }),
+  slug: Joi.string().min(3).trim().strict(),
   role: Joi.string().valid('admin', 'client').default('client'),
-  address: Joi.string().max(256).trim().strict(),
-  phone: Joi.string().min(10).max(12).trim().strict(),
+  address: Joi.string().max(256).trim().default(''),
   isActive: Joi.boolean().default(true),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
-  updatedAt: Joi.date().timestamp('javascript').default(null)
+  updatedAt: Joi.date().timestamp('javascript').default(null),
+  _destroy: Joi.boolean().default(false)
 })
 
 const validateBeforeCreate = async (data) => {
@@ -31,24 +49,57 @@ const findOneById = async (id) => {
 }
 
 const createNew = async (data) => {
+  // eslint-disable-next-line no-useless-catch
   try {
     const validData = await validateBeforeCreate(data)
+
+    const existEmail = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ email: data.email })
+
+    const existPhone = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ phone: data.phone })
+
+    if (existEmail || existPhone) {
+      const errors = {}
+
+      if (existEmail) errors.email = 'Email already exists'
+      if (existPhone) errors.phone = 'Phone number already exists'
+
+      throw new ApiError(StatusCodes.CONFLICT, 'Duplicate data found', errors)
+    }
 
     const createCustomer = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).insertOne(validData)
 
     return createCustomer
-  } catch (error) { throw new Error(error) }
+  } catch (error) { throw error }
+}
+
+const login = async (input) => {
+  // try {
+  const user = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({
+    $or: [
+      { email: input.username },
+      { phone: input.username }
+    ]
+  })
+
+  if (!user || !(await bcrypt.compare(input.password, user.password))) {
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid Email or Password.')
+  }
+
+  return user
+  // } catch (error) { throw error }
 }
 
 const getDetails = async (customerId) => {
   try {
     const result = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).aggregate([
-      { $match: {
-        _id: new ObjectId(customerId),
-        isActive: true
-      } }
+      {
+        $match: {
+          _id: new ObjectId(customerId),
+          isActive: true
+        }
+      }
     ]).toArray()
-    console.log(result)
+    // console.log(result)
     return result[0] || null
   } catch (error) {
     throw new Error(error)
@@ -58,5 +109,6 @@ const getDetails = async (customerId) => {
 export const customerModel = {
   createNew,
   findOneById,
-  getDetails
+  getDetails,
+  login
 }

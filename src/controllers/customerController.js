@@ -3,9 +3,18 @@ import { customerService } from '~/services/customerService'
 
 const createNew = async (req, res, next) => {
   try {
+    // console.log(req.body)
+
     const createdCustomer = await customerService.createNew(req.body)
 
     res.status(StatusCodes.CREATED).json(createdCustomer)
+  } catch (error) { next(error) }
+}
+
+const login = async (req, res, next) => {
+  try {
+    const customerLogin = await customerService.login(req.body)
+    res.status(StatusCodes.OK).json(customerLogin)
   } catch (error) { next(error) }
 }
 
@@ -23,5 +32,6 @@ const getDetails = async (req, res, next) => {
 
 export const customerController = {
   createNew,
-  getDetails
+  getDetails,
+  login
 }
