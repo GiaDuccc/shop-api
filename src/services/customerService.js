@@ -45,8 +45,15 @@ const getDetails = async (customerId) => {
   } catch (error) { throw error }
 }
 
+const addOrder = async (userId, order) => {
+  const updateCustomer = await customerModel.addOrder(userId, order)
+
+  return updateCustomer
+}
+
 export const customerService = {
   createNew,
   getDetails,
-  login
+  login,
+  addOrder
 }

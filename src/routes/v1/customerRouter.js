@@ -17,4 +17,7 @@ Router.route('/:id')
 Router.route('/login')
   .post(customerController.login)
 
+Router.route('/:id/add-order')
+  .put(customerValidation.addOrder, customerController.addOrder)
+
 export const customerRouter = Router
