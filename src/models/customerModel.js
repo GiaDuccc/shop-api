@@ -4,6 +4,7 @@ import { ObjectId } from 'mongodb'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
 import bcrypt from 'bcryptjs'
+import { OBJECT_ID_RULE } from '~/utils/validators'
 
 const CUSTOMER_COLLECTION_NAME = 'customers'
 const CUSTOMER_COLLECTION_SCHEMA = Joi.object({
@@ -27,6 +28,12 @@ const CUSTOMER_COLLECTION_SCHEMA = Joi.object({
       'string.pattern.base': 'Password must contain at least 1 uppercase letter, 1 number, and 1 special character',
       'any.required': 'Password is required'
     }),
+  orders: Joi.array().items(
+    Joi.object({
+      orderId: Joi.string().pattern(OBJECT_ID_RULE).required(),
+      status: Joi.string().valid('cart', 'pending', 'completed', 'cancelled').default('cart')
+    })
+  ),
   slug: Joi.string().min(3).trim().strict(),
   role: Joi.string().valid('admin', 'client').default('client'),
   address: Joi.string().max(256).trim().default(''),
@@ -106,9 +113,22 @@ const getDetails = async (customerId) => {
   }
 }
 
+const addOrder = async (customerId, order) => {
+  const updateCustomer = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOneAndUpdate(
+    { _id: new ObjectId(customerId) },
+    { $push: { orders: {
+      orderId: new ObjectId(order.orderId),
+      status: order.status
+    } } },
+    { returnDocument: 'after' }
+  )
+  return updateCustomer
+}
+
 export const customerModel = {
   createNew,
   findOneById,
   getDetails,
-  login
+  login,
+  addOrder
 }

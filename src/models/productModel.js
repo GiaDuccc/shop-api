@@ -11,7 +11,7 @@ const PRODUCT_COLLECTION_SCHEMA = Joi.object({
   highLight: Joi.string().max(255).trim().default(''),
   desc: Joi.string().trim().default(''),
   type: Joi.string().valid('sneaker', 'classic', 'running', 'basketball', 'football', 'boot').required(),
-  brand: Joi.string().min(3).max(50).trim().required().lowercase(),
+  brand: Joi.string().min(3).max(50).trim().lowercase().valid('nike', 'adidas', 'puma', 'newbalance', 'converse', 'biti\'s', 'bitis').required(),
   price: Joi.number().min(0).required(),
   stock: Joi.number().min(1),
   colors: Joi.array().items(
@@ -48,11 +48,9 @@ const createNew = async (data) => {
   try {
     const validData = await validateBeforeCreate(data)
 
-    // const exist = await GET_DB().collection(PRODUCT_COLLECTION_NAME).findOne({
-    //   name: data.name
-    // })
-
-    const exist = false
+    const exist = await GET_DB().collection(PRODUCT_COLLECTION_NAME).findOne({
+      name: data.name
+    })
 
     if (exist) {
       throw new ApiError(StatusCodes.CONFLICT, 'Sản phẩm đã tồn tại')

@@ -5,15 +5,13 @@ import { OBJECT_ID_RULE } from '~/utils/validators'
 
 const ORDER_COLLECTION_NAME = 'orders'
 const ORDER_COLLECTION_SCHEMA = Joi.object({
-  customerId: Joi.string().pattern(OBJECT_ID_RULE).message('Your string fails to match the customerId pattern!').required(),
   items: Joi.array().items(
     Joi.object({
       productId: Joi.string().pattern(OBJECT_ID_RULE).message('Your string fails to match the productId pattern!').required(),
       quantity: Joi.number().min(1).default(1).required(),
       price: Joi.number().min(0).required()
     })
-  ).min(1).required(),
-  slug: Joi.string().required().min(3).trim().strict(),
+  ).default([]),
   totalPrice: Joi.number().min(0).default(0),
   status: Joi.string().valid('cart', 'pending', 'completed', 'canceled').default('cart'),
   createdAt: Joi.date().timestamp('javascript').default(null),
@@ -27,16 +25,8 @@ const validateBeforeCreate = async (data) => {
 const createNew = async (data) => {
   try {
     const validData = await validateBeforeCreate(data)
-    const newOrderToAdd = {
-      ...validData,
-      customerId: new ObjectId(validData.customerId),
-      items: validData.items.map(product => ({
-        ...product,
-        productId: new ObjectId(product.productId)
-      }))
-    }
 
-    const createdOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).insertOne(newOrderToAdd)
+    const createdOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).insertOne(validData)
     return createdOrder
   } catch (error) {
     throw new Error(error)
@@ -56,18 +46,129 @@ const findOneById = async (orderId) => {
 const getDetails = async (orderId) => {
   try {
     const result = await GET_DB().collection(ORDER_COLLECTION_NAME).aggregate([
-      { $match: {
-        _id: new ObjectId(orderId),
-        _destroy: false
-      } }
+      {
+        $match: {
+          _id: new ObjectId(orderId),
+          _destroy: false
+        }
+      }
     ]).toArray()
 
     return result[0] || null
   } catch (error) { throw new Error(error) }
 }
 
+const addProduct = async (orderId, product) => {
+  const existProduct = await GET_DB().collection(ORDER_COLLECTION_NAME).findOne({
+    _id: new ObjectId(orderId),
+    items: {
+      $elemMatch: {
+        productId: new ObjectId(product.productId),
+        color: product.color,
+        size: product.size
+      }
+    }
+  })
+
+  let updateOrder
+
+  if (existProduct) {
+    updateOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).findOneAndUpdate(
+      {
+        _id: new ObjectId(orderId),
+        'items.productId': new ObjectId (product.productId),
+        'items.color': product.color,
+        'items.size': product.size
+      },
+      {
+        $inc: { 'items.$.quantity': 1 }
+      },
+      { returnDocument: 'after' }
+    )
+  }
+  else {
+    updateOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(orderId) },
+      {
+        $push: {
+          items: {
+            productId: new ObjectId(product.productId),
+            color: product.color,
+            size: product.size,
+            quantity: 1
+          }
+        }
+      },
+      { returnDocument: 'after' }
+    )
+  }
+
+  return updateOrder
+}
+
+const removeProduct = async (orderId, product) => {
+  const updateOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).findOneAndUpdate(
+    { _id: new ObjectId(orderId) },
+    {
+      $pull: {
+        items: {
+          productId: new ObjectId(product.productId),
+          color: product.color,
+          size: product.size
+        }
+      }
+    },
+    { returnDocument: 'after' }
+  )
+  return updateOrder
+}
+
+const increaseQuantity = async (orderId, { productId, color, size }) => {
+  await GET_DB().collection(ORDER_COLLECTION_NAME).updateOne(
+    {
+      _id: new ObjectId(orderId),
+      items: {
+        $elemMatch: {
+          productId: new ObjectId(productId),
+          color: color,
+          size: size
+        }
+      }
+    },
+    {
+      $inc: { 'items.$.quantity': 1 }
+    }
+  )
+  const updatedOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).findOne({ _id: new ObjectId(orderId) })
+  return updatedOrder
+}
+
+const decreaseQuantity = async (orderId, { productId, color, size }) => {
+  await GET_DB().collection(ORDER_COLLECTION_NAME).updateOne(
+    {
+      _id: new ObjectId(orderId),
+      items: {
+        $elemMatch: {
+          productId: new ObjectId(productId),
+          color: color,
+          size: size
+        }
+      }
+    },
+    {
+      $inc: { 'items.$.quantity': -1 }
+    }
+  )
+  const updatedOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).findOne({ _id: new ObjectId(orderId) })
+  return updatedOrder
+}
+
 export const orderModel = {
   createNew,
   findOneById,
-  getDetails
+  getDetails,
+  addProduct,
+  increaseQuantity,
+  decreaseQuantity,
+  removeProduct
 }

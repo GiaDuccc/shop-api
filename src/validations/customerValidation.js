@@ -1,6 +1,7 @@
 import Joi from 'joi'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
+import { OBJECT_ID_RULE } from '~/utils/validators'
 
 const createNew = async (req, res, next) => {
   const correctCondition = Joi.object({
@@ -38,6 +39,28 @@ const createNew = async (req, res, next) => {
   }
 }
 
+const addOrder = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    orderId: Joi.string().pattern(OBJECT_ID_RULE).message('Your string fails to match the productId pattern!').required(),
+    status: Joi.string().valid('cart', 'pending', 'completed', 'canceled').default('cart')
+  })
+
+  try {
+    await correctCondition.validateAsync(req.body, {
+      abortEarly: false,
+      allowUnknown: true
+    })
+    next()
+
+  } catch (error) {
+    const errorMessage = new Error(error).message
+
+    const customError = new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage)
+    next(customError)
+  }
+}
+
 export const customerValidation = {
-  createNew
+  createNew,
+  addOrder
 }

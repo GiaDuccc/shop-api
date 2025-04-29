@@ -7,12 +7,24 @@ const Router = express.Router()
 
 Router.route('/')
   .get((req, res) => {
-    res.status(StatusCodes.OK).json({ message: 'GET: API get list orders' })
+    res.status(StatusCodes.OK).json({ message: 'GET: API get list order' })
   })
   .post(orderValidation.createNew, orderController.createNew)
 
 Router.route('/:id')
   .get(orderController.getDetails)
-  // .put(orderValidation.update, orderController.update) // update
+// .put(orderValidation.update, orderController.update) // update
+
+Router.route('/:id/add-product')
+  .put(orderValidation.addProduct, orderController.addProduct)
+
+Router.route('/:id/remove-product')
+  .put(orderController.removeProduct)
+
+Router.route('/:id/increase-quantity')
+  .put(orderController.increaseQuantity)
+
+Router.route('/:id/decrease-quantity')
+  .put(orderController.decreaseQuantity)
 
 export const orderRouter = Router
