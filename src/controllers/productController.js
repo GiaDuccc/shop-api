@@ -33,15 +33,6 @@ const getAllProduct = async (req, res, next) => {
   }
 }
 
-const getAllProductFilter = async (req, res, next) => {
-  try {
-    const products = await productService.getAllProductFilter()
-    res.status(StatusCodes.OK).json(products)
-  } catch (error) {
-    next(error)
-  }
-}
-
 const getAllProductPage = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1
@@ -63,6 +54,5 @@ export const productController = {
   createNew,
   getDetails,
   getAllProduct,
-  getAllProductPage,
-  getAllProductFilter
+  getAllProductPage
 }
