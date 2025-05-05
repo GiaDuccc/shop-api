@@ -76,9 +76,13 @@ const addProduct = async (orderId, product) => {
     updateOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).findOneAndUpdate(
       {
         _id: new ObjectId(orderId),
-        'items.productId': new ObjectId (product.productId),
-        'items.color': product.color,
-        'items.size': product.size
+        items: {
+          $elemMatch: {
+            productId: new ObjectId(product.productId),
+            color: product.color,
+            size: product.size
+          }
+        }
       },
       {
         $inc: { 'items.$.quantity': 1 }

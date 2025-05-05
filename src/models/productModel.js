@@ -13,7 +13,7 @@ const PRODUCT_COLLECTION_SCHEMA = Joi.object({
   type: Joi.string().valid('sneaker', 'classic', 'running', 'basketball', 'football', 'boot').required(),
   brand: Joi.string().min(3).max(50).trim().lowercase().valid('nike', 'adidas', 'puma', 'newbalance', 'converse', 'biti\'s', 'bitis').required(),
   price: Joi.number().min(0).required(),
-  stock: Joi.number().min(1),
+  stock: Joi.number().min(0),
   colors: Joi.array().items(
     Joi.object({
       color: Joi.string().trim().required(),
@@ -102,43 +102,6 @@ const getAllProduct = async () => {
   }
 }
 
-const getAllProductFilter = async (filters) => {
-  try {
-    // console.log('filters', filters)
-    const matchConditions = {}
-
-    Object.keys(filters).forEach(key => {
-      const value = filters[key]
-
-      if (value) {
-        if (typeof value === 'string' && value.includes(',')) {
-          matchConditions[key] = { $in: value.split(',') }
-        }
-        else {
-          matchConditions[key] = value
-        }
-      }
-
-    })
-
-    const result = await GET_DB().collection(PRODUCT_COLLECTION_NAME).aggregate([
-      { $match: matchConditions }
-    ]).toArray()
-
-
-    const total = await GET_DB().collection(PRODUCT_COLLECTION_NAME).countDocuments(matchConditions)
-
-    const products = {
-      products: result,
-      total: total
-    }
-
-    return products
-  } catch (error) {
-    throw new Error(error)
-  }
-}
-
 const getAllProductPage = async (page, limit, filterOptions) => {
   try {
     const skip = (page - 1) * limit
@@ -162,6 +125,9 @@ const getAllProductPage = async (page, limit, filterOptions) => {
             matchConditions[key] = { $lte: 0 }
           }
         }
+      }
+      else if (key === 'search') {
+        matchConditions.name = { $regex: value, $options: 'i' }
       }
       else if (key === 'color') {
         if (typeof value === 'string' && value.includes(',')) {
@@ -240,6 +206,5 @@ export const productModel = {
   getDetails,
   findOneById,
   getAllProduct,
-  getAllProductPage,
-  getAllProductFilter
+  getAllProductPage
 }
