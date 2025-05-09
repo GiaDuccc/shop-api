@@ -8,6 +8,13 @@ const createNew = async (req, res, next) => {
   } catch (error) { next(Error) }
 }
 
+// const getAllOrders = async (req, res, next) => {
+//   try {
+//     const orders = await orderService.getAllOrders()
+//     res.status(StatusCodes.OK).json(orders)
+//   } catch (error) { next(Error) }
+// }
+
 const getDetails = async (req, res, next) => {
   try {
     const orderId = req.params.id
@@ -56,11 +63,33 @@ const decreaseQuantity = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const addInformation = async (req, res, next) => {
+  try {
+    const orderId = req.params.id
+    const updateOrder = await orderService.addInformation(orderId, req.body)
+
+    res.status(StatusCodes.OK).json(updateOrder)
+  } catch (error) { next(error) }
+}
+
+const update = async (req, res, next) => {
+  try {
+    const orderId = req.params.id
+    const { total } = req.body
+    const updateOrder = await orderService.update(orderId, total)
+
+    res.status(StatusCodes.OK).json(updateOrder)
+  } catch (error) { next(error) }
+}
+
 export const orderController = {
   createNew,
+  // getAllOrders,
   getDetails,
   addProduct,
   increaseQuantity,
   decreaseQuantity,
-  removeProduct
+  removeProduct,
+  addInformation,
+  update
 }

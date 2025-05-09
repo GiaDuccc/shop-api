@@ -13,7 +13,7 @@ const ORDER_COLLECTION_SCHEMA = Joi.object({
     })
   ).default([]),
   totalPrice: Joi.number().min(0).default(0),
-  status: Joi.string().valid('cart', 'pending', 'completed', 'canceled').default('cart'),
+  status: Joi.string().valid('cart', 'completed', 'canceled').default('cart'),
   createdAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false)
 })
@@ -99,6 +99,9 @@ const addProduct = async (orderId, product) => {
             productId: new ObjectId(product.productId),
             color: product.color,
             size: product.size,
+            price: product.price,
+            name: product.name,
+            image: product.image,
             quantity: 1
           }
         }
@@ -167,6 +170,50 @@ const decreaseQuantity = async (orderId, { productId, color, size }) => {
   return updatedOrder
 }
 
+const addInformation = async (orderId, { name, phone, address }) => {
+  await GET_DB().collection(ORDER_COLLECTION_NAME).updateOne(
+    { _id: new ObjectId(orderId) },
+    {
+      $set: {
+        name,
+        phone,
+        address
+      }
+    }
+  )
+  const updatedOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).findOne({ _id: new ObjectId(orderId) })
+  return updatedOrder
+}
+
+const update = async (orderId, totalPrice) => {
+  await GET_DB().collection(ORDER_COLLECTION_NAME).updateOne(
+    { _id: new ObjectId(orderId) },
+    {
+      $set: {
+        totalPrice: totalPrice,
+        status: 'completed',
+        createdAt: new Date()
+      }
+    }
+  )
+  const updatedOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).findOne({ _id: new ObjectId(orderId) })
+  return updatedOrder
+}
+
+// const getAllOrders = async () => {
+//   try {
+//     const result = await GET_DB().collection(ORDER_COLLECTION_NAME).aggregate([
+//       {
+//         $match: {
+//           status: false
+//         }
+//       }
+//     ]).toArray()
+
+//     return result[0] || null
+//   } catch (error) { throw new Error(error) }
+// }
+
 export const orderModel = {
   createNew,
   findOneById,
@@ -174,5 +221,8 @@ export const orderModel = {
   addProduct,
   increaseQuantity,
   decreaseQuantity,
-  removeProduct
+  removeProduct,
+  addInformation,
+  update,
+  // getAllOrders
 }

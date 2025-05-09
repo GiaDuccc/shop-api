@@ -51,9 +51,18 @@ const addOrder = async (userId, order) => {
   return updateCustomer
 }
 
+const updateOrder = async (customerId, orderId) => {
+  const updateCustomer = await customerModel.updateOrder(customerId, orderId)
+
+  return updateCustomer
+}
+
 export const customerService = {
   createNew,
   getDetails,
   login,
-  addOrder
+  addOrder,
+  updateOrder
 }
+
+
