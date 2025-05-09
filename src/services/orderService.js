@@ -18,6 +18,17 @@ const createNew = async (reqBody) => {
   } catch (error) { throw error }
 }
 
+// const getAllOrders = async () => {
+//   try {
+//     const orders = await orderModel.getAllOrders()
+
+//     if (!orders) {
+//       throw new ApiError(StatusCodes.NOT_FOUND, 'Order is not found!')
+//     }
+//     return orders
+//   } catch (error) { throw error }
+// }
+
 const getDetails = async (orderId) => {
   try {
     const order = await orderModel.getDetails(orderId)
@@ -56,11 +67,28 @@ const decreaseQuantity = async (orderId, { productId, color, size }) => {
   return updateOrder
 }
 
+const addInformation = async (orderId, reqBody) => {
+
+  const { name, phone, address } = reqBody
+  const updateOrder = await orderModel.addInformation(orderId, { name, phone, address })
+
+  return updateOrder
+}
+
+const update = async (orderId, totalPrice) => {
+  const updateOrder = await orderModel.update(orderId, totalPrice)
+
+  return updateOrder
+}
+
 export const orderService = {
   createNew,
   getDetails,
+  // getAllOrders,
   addProduct,
   increaseQuantity,
   decreaseQuantity,
-  removeProduct
+  removeProduct,
+  addInformation,
+  update
 }

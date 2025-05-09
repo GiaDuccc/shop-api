@@ -1,19 +1,16 @@
 import express from 'express'
-import { StatusCodes } from 'http-status-codes'
 import { orderValidation } from '~/validations/orderValidation'
 import { orderController } from '~/controllers/orderController'
 
 const Router = express.Router()
 
 Router.route('/')
-  .get((req, res) => {
-    res.status(StatusCodes.OK).json({ message: 'GET: API get list order' })
-  })
+  // .get(orderController.getAllOrders)
   .post(orderValidation.createNew, orderController.createNew)
 
 Router.route('/:id')
   .get(orderController.getDetails)
-// .put(orderValidation.update, orderController.update) // update
+  .put(orderController.update) // update
 
 Router.route('/:id/add-product')
   .put(orderValidation.addProduct, orderController.addProduct)
@@ -26,5 +23,8 @@ Router.route('/:id/increase-quantity')
 
 Router.route('/:id/decrease-quantity')
   .put(orderController.decreaseQuantity)
+
+Router.route('/:id/add-information')
+  .put(orderValidation.addInformation, orderController.addInformation)
 
 export const orderRouter = Router

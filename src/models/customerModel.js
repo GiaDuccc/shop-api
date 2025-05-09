@@ -31,12 +31,12 @@ const CUSTOMER_COLLECTION_SCHEMA = Joi.object({
   orders: Joi.array().items(
     Joi.object({
       orderId: Joi.string().pattern(OBJECT_ID_RULE).required(),
-      status: Joi.string().valid('cart', 'pending', 'completed', 'cancelled').default('cart')
+      status: Joi.string().valid('cart', 'completed', 'cancelled').default('cart')
     })
   ),
   slug: Joi.string().min(3).trim().strict(),
   role: Joi.string().valid('admin', 'client').default('client'),
-  address: Joi.string().max(256).trim().default(''),
+  address: Joi.string().max(256).trim().default('Unknow'),
   isActive: Joi.boolean().default(true),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
@@ -116,13 +116,33 @@ const getDetails = async (customerId) => {
 const addOrder = async (customerId, order) => {
   const updateCustomer = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOneAndUpdate(
     { _id: new ObjectId(customerId) },
-    { $push: { orders: {
-      orderId: new ObjectId(order.orderId),
-      status: order.status
-    } } },
+    {
+      $push: {
+        orders: {
+          orderId: new ObjectId(order.orderId),
+          status: order.status
+        }
+      }
+    },
     { returnDocument: 'after' }
   )
   return updateCustomer
+}
+
+const updateOrder = async (customerId, orderId) => {
+  const updateOrder = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOneAndUpdate(
+    {
+      _id: new ObjectId(customerId),
+      'orders.orderId': new ObjectId(orderId)
+    },
+    {
+      $set: {
+        'orders.$.status': 'completed'
+      }
+    },
+    { returnDocument: 'after' }
+  )
+  return updateOrder
 }
 
 export const customerModel = {
@@ -130,5 +150,6 @@ export const customerModel = {
   findOneById,
   getDetails,
   login,
-  addOrder
+  addOrder,
+  updateOrder
 }

@@ -39,9 +39,20 @@ const addOrder = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const updateOrder = async (req, res, next) => {
+  try {
+    const customerId = req.params.id
+    const { orderId } = req.body
+    const updateCustomer = await customerService.updateOrder(customerId, orderId)
+
+    res.status(StatusCodes.OK).json(updateCustomer)
+  } catch (error) { next(error) }
+}
+
 export const customerController = {
   createNew,
   getDetails,
   login,
-  addOrder
+  addOrder,
+  updateOrder
 }
