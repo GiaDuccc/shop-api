@@ -11,6 +11,19 @@ const createNew = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const getAllCustomerPage = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 12
+
+    // eslint-disable-next-line no-unused-vars
+    let { page: _p, limit: _l, ...filters } = req.query
+
+    const allCustomer = await customerService.getAllCustomerPage(page, limit, filters)
+    res.status(StatusCodes.OK).json(allCustomer)
+  } catch (error) { next(error) }
+}
+
 const login = async (req, res, next) => {
   try {
     const customerLogin = await customerService.login(req.body)
@@ -42,17 +55,42 @@ const addOrder = async (req, res, next) => {
 const updateOrder = async (req, res, next) => {
   try {
     const customerId = req.params.id
-    const { orderId } = req.body
-    const updateCustomer = await customerService.updateOrder(customerId, orderId)
+    const { orderId, status } = req.body
+    const updateCustomer = await customerService.updateOrder(customerId, orderId, status)
 
     res.status(StatusCodes.OK).json(updateCustomer)
   } catch (error) { next(error) }
 }
 
+const deleteCustomer = async (req, res, next) => {
+  try {
+
+    const customerId = req.params.id
+
+    const deleteCustomer = await customerService.deleteCustomer(customerId)
+
+    res.status(StatusCodes.OK).json(deleteCustomer)
+  } catch (error) { next(error) }
+}
+
+const changeRole = async (req, res, next) => {
+  try {
+    const customerId = req.params.id
+    const { role } = req.body
+
+    const updateCustomer = await customerService.changeRole(customerId, role)
+    res.status(StatusCodes.OK).json(updateCustomer)
+
+  } catch (error) { next(error) }
+}
+
 export const customerController = {
   createNew,
+  getAllCustomerPage,
   getDetails,
   login,
   addOrder,
-  updateOrder
+  updateOrder,
+  deleteCustomer,
+  changeRole
 }

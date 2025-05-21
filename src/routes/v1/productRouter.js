@@ -1,8 +1,82 @@
 import express from 'express'
 import { productController } from '~/controllers/productController'
 import { productValidation } from '~/validations/productValidation'
+import multer from 'multer'
+import path from 'path'
+import fs from 'fs'
 
 const Router = express.Router()
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    // Lấy từ query thay vì body vì body chưa parse khi multer gọi destination
+    const productName = req.query.productName
+    const productColor = req.query.productColor
+
+    let folderPath
+
+    if (productColor) {
+      folderPath = path.join(
+        __dirname,
+        '../../../allProduct',
+        productName,
+        `${productName}-${productColor}`
+      )
+    } else {
+      folderPath = path.join(
+        __dirname,
+        '../../../allProduct',
+        productName
+      )
+    }
+
+    fs.mkdirSync(folderPath, { recursive: true })
+
+    cb(null, folderPath)
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname)
+  }
+})
+
+const upload = multer({
+  storage: storage,
+  fileFilter: function (req, file, cb) {
+    // Kiểm tra mime type file xem có phải ảnh không
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif']
+
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true) // Chấp nhận file
+    } else {
+      cb(new Error('Chỉ chấp nhận file ảnh (jpg, png, gif, webp, avif)'))
+    }
+  }
+})
+
+Router.post('/upload', (req, res, next) => {
+  upload.single('file')(req, res, function (err) {
+    if (err) {
+      return res.status(400).json({ message: 'Upload thất bại', error: err.message })
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' })
+    }
+
+    // Lấy productName và productColor từ query param cho đồng bộ với destination
+    const productName = req.query.productName
+    const productColor = req.query.productColor
+
+    const publicUrl = productColor
+      ? `/allProduct/${productName}/${productName}-${productColor}/${req.file.filename}`
+      : `/allProduct/${productName}/${req.file.filename}`
+
+    res.json({
+      message: 'Upload success',
+      filePath: publicUrl
+    })
+  })
+})
 
 Router.route('/')
   .get(productController.getAllProduct)
@@ -13,5 +87,8 @@ Router.route('/filter')
 
 Router.route('/:id')
   .get(productController.getDetails)
+  .put(productValidation.updateProduct, productController.updateProduct)
+Router.route('/:id/delete')
+  .put(productController.deleteProduct)
 
 export const productRouter = Router

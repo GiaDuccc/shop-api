@@ -5,7 +5,7 @@ import { orderController } from '~/controllers/orderController'
 const Router = express.Router()
 
 Router.route('/')
-  // .get(orderController.getAllOrders)
+  .get(orderController.getAllOrdersPage)
   .post(orderValidation.createNew, orderController.createNew)
 
 Router.route('/:id')
@@ -26,5 +26,11 @@ Router.route('/:id/decrease-quantity')
 
 Router.route('/:id/add-information')
   .put(orderValidation.addInformation, orderController.addInformation)
+
+Router.route('/:id/delete')
+  .put(orderController.deleteOrder)
+
+Router.route('/:id/updateStatus')
+  .put(orderValidation.updateStatus, orderController.updateStatus)
 
 export const orderRouter = Router

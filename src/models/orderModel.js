@@ -13,7 +13,7 @@ const ORDER_COLLECTION_SCHEMA = Joi.object({
     })
   ).default([]),
   totalPrice: Joi.number().min(0).default(0),
-  status: Joi.string().valid('cart', 'completed', 'canceled').default('cart'),
+  status: Joi.string().valid('cart', 'pending', 'delivering', 'completed', 'canceled').default('cart'),
   createdAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false)
 })
@@ -185,14 +185,15 @@ const addInformation = async (orderId, { name, phone, address }) => {
   return updatedOrder
 }
 
-const update = async (orderId, totalPrice) => {
+const update = async (orderId, totalPrice, payment) => {
   await GET_DB().collection(ORDER_COLLECTION_NAME).updateOne(
     { _id: new ObjectId(orderId) },
     {
       $set: {
         totalPrice: totalPrice,
-        status: 'completed',
-        createdAt: new Date()
+        status: 'pending',
+        createdAt: new Date(),
+        payment: payment
       }
     }
   )
@@ -200,19 +201,92 @@ const update = async (orderId, totalPrice) => {
   return updatedOrder
 }
 
-// const getAllOrders = async () => {
-//   try {
-//     const result = await GET_DB().collection(ORDER_COLLECTION_NAME).aggregate([
-//       {
-//         $match: {
-//           status: false
-//         }
-//       }
-//     ]).toArray()
+const updateStatus = async (orderId, status) => {
+  await GET_DB().collection(ORDER_COLLECTION_NAME).updateOne(
+    { _id: new ObjectId(orderId) },
+    {
+      $set: {
+        status: status,
+        updateAt: new Date()
+      }
+    }
+  )
+  // const updatedOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).findOne({ _id: new ObjectId(orderId) })
+  return 'update status success'
+}
 
-//     return result[0] || null
-//   } catch (error) { throw new Error(error) }
-// }
+const getAllOrdersPage = async (page, limit, filterOptions) => {
+  try {
+    const skip = (page - 1) * limit
+    const { sort, search } = filterOptions
+
+    let sortOption = {}
+
+    switch (sort) {
+      case 'newest':
+        sortOption = { createdAt: -1 }
+        break
+      case 'oldest':
+        sortOption = { createdAt: 1 }
+        break
+      case 'low-high':
+        sortOption = { totalPrice: 1 }
+        break
+      case 'high-low':
+        sortOption = { totalPrice: -1 }
+        break
+      default:
+        sortOption = {}
+    }
+
+    const matchConditions = {
+      status: { $ne: 'cart' },
+      _destroy: false // not equal
+    }
+
+    if (search) {
+      const orConditions = []
+
+      orConditions.push(
+        { address: { $regex: search, $options: 'i' } },
+        { name: { $regex: search, $options: 'i' } },
+        { status: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } }
+      )
+
+      matchConditions.$or = orConditions
+    }
+
+    const allFilter = [
+      { $match: matchConditions },
+      ...(Object.keys(sortOption).length > 0 ? [{ $sort: sortOption }] : []),
+      { $skip: skip },
+      { $limit: limit }
+    ]
+
+    const result = await GET_DB().collection(ORDER_COLLECTION_NAME).aggregate(allFilter).toArray()
+
+    const total = await GET_DB().collection(ORDER_COLLECTION_NAME).countDocuments(matchConditions)
+
+    const orders = {
+      products: result,
+      total: total
+    }
+
+    return orders
+  } catch (error) { throw new Error(error) }
+}
+
+const deleteOrder = async (orderId) => {
+  await GET_DB().collection(ORDER_COLLECTION_NAME).updateOne(
+    { _id: new ObjectId(orderId) },
+    {
+      $set: {
+        _destroy: true
+      }
+    }
+  )
+}
 
 export const orderModel = {
   createNew,
@@ -224,5 +298,7 @@ export const orderModel = {
   removeProduct,
   addInformation,
   update,
-  // getAllOrders
+  getAllOrdersPage,
+  deleteOrder,
+  updateStatus
 }

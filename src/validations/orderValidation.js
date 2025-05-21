@@ -68,8 +68,24 @@ const addInformation = async (req, res, next) => {
   }
 }
 
+const updateStatus = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    status: Joi.string().valid('cart', 'pending', 'delivering', 'completed', 'canceled')
+  })
+
+  try {
+    await correctCondition.validateAsync(req.body, { abortEarly: false })
+    next()
+
+  } catch (error) {
+    const customError = new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, 'status is invalid')
+    next(customError)
+  }
+}
+
 export const orderValidation = {
   createNew,
   addProduct,
-  addInformation
+  addInformation,
+  updateStatus
 }

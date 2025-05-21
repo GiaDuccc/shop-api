@@ -9,7 +9,7 @@ const createNew = async (reqBody) => {
     let stock = 0
     reqBody.colors.forEach(color => {
       color.sizes.forEach(size => {
-        stock += size.quantity
+        stock += Number(size.quantity)
       })
     })
 
@@ -59,9 +59,40 @@ const getAllProductPage = async (page, limit, filters) => {
   } catch (error) { throw error }
 }
 
+const deleteProduct = async (productId) => {
+  try {
+    const products = await productModel.update(productId)
+    return products
+  } catch (error) { throw error }
+}
+
+const updateProduct = async (id, properties) => {
+  try {
+    let stock = 0
+    properties.colors.forEach(color => {
+      color.sizes.forEach(size => {
+        stock += Number(size.quantity)
+      })
+    })
+
+    const newProperties = {
+      ...properties,
+      slug: slugify(properties.name),
+      stock: stock,
+      updateAt: new Date()
+    }
+
+    const updateProduct = await productModel.updateProduct(id, newProperties)
+
+    return updateProduct
+  } catch (error) { throw error }
+}
+
 export const productService = {
   createNew,
   getDetails,
   getAllProduct,
-  getAllProductPage
+  getAllProductPage,
+  deleteProduct,
+  updateProduct
 }

@@ -21,6 +21,16 @@ const createNew = async (reqBody) => {
   } catch (error) { throw error }
 }
 
+const getAllCustomerPage = async (page, limit, filters) => {
+  try {
+    const allCustomer = await customerModel.getAllCustomerPage(page, limit, filters)
+
+    if (!allCustomer) throw new ApiError(StatusCodes.NOT_FOUND, 'We have zero Customer')
+
+    return allCustomer
+  } catch (error) { throw error }
+}
+
 const login = async (reqBody) => {
   try {
     const customerLogin = await customerModel.login(reqBody)
@@ -51,18 +61,32 @@ const addOrder = async (userId, order) => {
   return updateCustomer
 }
 
-const updateOrder = async (customerId, orderId) => {
-  const updateCustomer = await customerModel.updateOrder(customerId, orderId)
+const updateOrder = async (customerId, orderId, status) => {
+  const updateCustomer = await customerModel.updateOrder(customerId, orderId, status)
 
+  return updateCustomer
+}
+
+const deleteCustomer = async (customerId) => {
+  const deleteCustomer = await customerModel.deleteCustomer(customerId)
+
+  return deleteCustomer
+}
+
+const changeRole = async (customerId, role) => {
+  const updateCustomer = await customerModel.changeRole(customerId, role)
   return updateCustomer
 }
 
 export const customerService = {
   createNew,
+  getAllCustomerPage,
   getDetails,
   login,
   addOrder,
-  updateOrder
+  updateOrder,
+  deleteCustomer,
+  changeRole
 }
 
 

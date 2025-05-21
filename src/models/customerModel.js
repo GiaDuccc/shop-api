@@ -35,8 +35,8 @@ const CUSTOMER_COLLECTION_SCHEMA = Joi.object({
     })
   ),
   slug: Joi.string().min(3).trim().strict(),
-  role: Joi.string().valid('admin', 'client').default('client'),
-  address: Joi.string().max(256).trim().default('Unknow'),
+  role: Joi.string().valid('manager', 'admin', 'client').default('client'),
+  address: Joi.string().max(256).trim().default('Unknown'),
   isActive: Joi.boolean().default(true),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
@@ -60,9 +60,9 @@ const createNew = async (data) => {
   try {
     const validData = await validateBeforeCreate(data)
 
-    const existEmail = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ email: data.email })
+    const existEmail = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ email: data.email, _destroy: false })
 
-    const existPhone = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ phone: data.phone })
+    const existPhone = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ phone: data.phone, _destroy: false })
 
     if (existEmail || existPhone) {
       const errors = {}
@@ -77,6 +77,66 @@ const createNew = async (data) => {
 
     return createCustomer
   } catch (error) { throw error }
+}
+
+const getAllCustomerPage = async (page, limit, filters) => {
+  const skip = (page - 1) * limit
+  const { sort, search } = filters
+
+  let sortOption = {}
+
+  switch (sort) {
+    case 'newest':
+      sortOption = { createdAt: -1 }
+      break
+    case 'oldest':
+      sortOption = { createdAt: 1 }
+      break
+    case 'A-Z':
+      sortOption = { lastName: 1 }
+      break
+    case 'Z-A':
+      sortOption = { lastName: -1 }
+      break
+    default:
+      sortOption = {}
+  }
+
+  const matchConditions = {
+    _destroy: false // not equal
+  }
+
+  if (search) {
+    const orConditions = []
+
+    orConditions.push(
+      { address: { $regex: search, $options: 'i' } },
+      { lastName: { $regex: search, $options: 'i' } },
+      { firstName: { $regex: search, $options: 'i' } },
+      { phone: { $regex: search, $options: 'i' } }
+    )
+
+    matchConditions.$or = orConditions
+  }
+
+  const allFilter = [
+    { $match: matchConditions },
+    ...(Object.keys(sortOption).length > 0 ? [{ $sort: sortOption }] : []),
+    { $skip: skip },
+    { $limit: limit }
+  ]
+
+  const allCustomer = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).aggregate(allFilter).toArray()
+  const total = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).countDocuments({
+    _destroy: false
+  })
+
+  const result = {
+    customers: allCustomer,
+    total: total
+  }
+
+  return result
 }
 
 const login = async (input) => {
@@ -102,7 +162,7 @@ const getDetails = async (customerId) => {
       {
         $match: {
           _id: new ObjectId(customerId),
-          isActive: true
+          _destroy: false
         }
       }
     ]).toArray()
@@ -129,7 +189,7 @@ const addOrder = async (customerId, order) => {
   return updateCustomer
 }
 
-const updateOrder = async (customerId, orderId) => {
+const updateOrder = async (customerId, orderId, status) => {
   const updateOrder = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOneAndUpdate(
     {
       _id: new ObjectId(customerId),
@@ -137,7 +197,7 @@ const updateOrder = async (customerId, orderId) => {
     },
     {
       $set: {
-        'orders.$.status': 'completed'
+        'orders.$.status': status
       }
     },
     { returnDocument: 'after' }
@@ -145,11 +205,43 @@ const updateOrder = async (customerId, orderId) => {
   return updateOrder
 }
 
+const deleteCustomer = async (customerId) => {
+  await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOneAndUpdate(
+    { _id: new ObjectId(customerId) },
+    {
+      $set: {
+        _destroy: true
+      }
+    }
+  )
+
+  return 'Delete successfull'
+}
+
+const changeRole = async (customerId, role) => {
+  await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOneAndUpdate(
+    {
+      _id: new ObjectId(customerId),
+      _destroy: false
+    },
+    {
+      $set: {
+        role: role
+      }
+    }
+  )
+
+  return 'Change role customer successfully'
+}
+
 export const customerModel = {
   createNew,
   findOneById,
+  getAllCustomerPage,
   getDetails,
   login,
   addOrder,
-  updateOrder
+  updateOrder,
+  deleteCustomer,
+  changeRole
 }
