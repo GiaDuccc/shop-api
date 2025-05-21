@@ -1,4 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
+import { productModel } from '~/models/productModel'
 import { productService } from '~/services/productService'
 
 const createNew = async (req, res, next) => {

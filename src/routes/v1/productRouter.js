@@ -53,7 +53,7 @@ const upload = multer({
   }
 })
 
-Router.post('/upload', (req, res, next) => {
+Router.post('/uploadSingle', (req, res, next) => {
   upload.single('file')(req, res, function (err) {
     if (err) {
       return res.status(400).json({ message: 'Upload thất bại', error: err.message })
@@ -67,13 +67,37 @@ Router.post('/upload', (req, res, next) => {
     const productName = req.query.productName
     const productColor = req.query.productColor
 
-    const publicUrl = productColor
-      ? `/allProduct/${productName}/${productName}-${productColor}/${req.file.filename}`
+    const publicUrl = productColor ?
+      `/allProduct/${productName}/${productName}-${productColor}/${req.file.filename}`
       : `/allProduct/${productName}/${req.file.filename}`
 
     res.json({
       message: 'Upload success',
       filePath: publicUrl
+    })
+  })
+})
+
+Router.post('/uploadArray', (req, res, next) => {
+  upload.array('files', 6)(req, res, function (err) {
+    if (err) {
+      return res.status(400).json({ message: 'Upload failed', error: err.message })
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: 'No files uploaded' })
+    }
+
+    const productName = req.query.productName
+    const productColor = req.query.productColor
+
+    const publicUrls = req.files.map(file => {
+      return `/allProduct/${productName}/${productName}-${productColor}/${file.filename}`
+    })
+
+    res.json({
+      message: 'Upload success',
+      filePaths: publicUrls
     })
   })
 })
@@ -90,5 +114,6 @@ Router.route('/:id')
   .put(productValidation.updateProduct, productController.updateProduct)
 Router.route('/:id/delete')
   .put(productController.deleteProduct)
+
 
 export const productRouter = Router
