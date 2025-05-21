@@ -1,7 +1,7 @@
 /* eslint-disable no-lonely-if */
 import Joi from 'joi'
 import { GET_DB } from '~/config/mongodb'
-import { ObjectId } from 'mongodb'
+import { ObjectId, ReturnDocument } from 'mongodb'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 
@@ -14,16 +14,14 @@ const PRODUCT_COLLECTION_SCHEMA = Joi.object({
   brand: Joi.string().min(3).max(50).trim().lowercase().valid('nike', 'adidas', 'puma', 'newbalance', 'converse', 'biti\'s', 'bitis').required(),
   price: Joi.number().min(0).required(),
   stock: Joi.number().min(0),
+  adImage: Joi.string().default(''),
+  navbarImage: Joi.string().default(''),
   colors: Joi.array().items(
     Joi.object({
       color: Joi.string().trim().required(),
       colorHex: Joi.string().pattern(/^#[0-9A-Fa-f]{6}$/).default('#97bfc700'),
-      image: Joi.string()
-        .pattern(/^[\w\s.-]+\.(png|jpg|jpeg|avif)$/i)
-        .default(''),
       imageDetail: Joi.array().items(
         Joi.string()
-          .pattern(/^[\w\s.-]+\.(png|jpg|jpeg|avif)$/i)
       ).max(6).default([]),
       sizes: Joi.array().items(
         Joi.object({
@@ -49,7 +47,8 @@ const createNew = async (data) => {
     const validData = await validateBeforeCreate(data)
 
     const exist = await GET_DB().collection(PRODUCT_COLLECTION_NAME).findOne({
-      name: data.name
+      name: data.name,
+      _destroy: false
     })
 
     if (exist) {
@@ -92,9 +91,9 @@ const getDetails = async (id) => {
 
 const getAllProduct = async () => {
   try {
-    const result = await GET_DB().collection(PRODUCT_COLLECTION_NAME).aggregate([]).toArray()
-
-    // console.log(result)
+    const result = await GET_DB().collection(PRODUCT_COLLECTION_NAME).aggregate([
+      { $match: { _destroy: false } }
+    ]).toArray()
 
     return result || null
   } catch (error) {
@@ -107,7 +106,7 @@ const getAllProductPage = async (page, limit, filterOptions) => {
     const skip = (page - 1) * limit
     const { sort, ...filters } = filterOptions
 
-    const matchConditions = {}
+    const matchConditions = { _destroy: false }
 
     Object.keys(filters).forEach(key => {
 
@@ -155,20 +154,20 @@ const getAllProductPage = async (page, limit, filterOptions) => {
     let sortOption = {}
 
     switch (sort) {
-    case 'newest':
-      sortOption = { importAt: -1 }
-      break
-    case 'oldest':
-      sortOption = { importAt: 1 }
-      break
-    case 'low-high':
-      sortOption = { price: 1 }
-      break
-    case 'high-low':
-      sortOption = { price: -1 }
-      break
-    default:
-      sortOption = {}
+      case 'newest':
+        sortOption = { importAt: -1 }
+        break
+      case 'oldest':
+        sortOption = { importAt: 1 }
+        break
+      case 'low-high':
+        sortOption = { price: 1 }
+        break
+      case 'high-low':
+        sortOption = { price: -1 }
+        break
+      default:
+        sortOption = {}
     }
 
     const allFilter = [
@@ -180,10 +179,6 @@ const getAllProductPage = async (page, limit, filterOptions) => {
     if (Object.keys(sortOption).length > 0) {
       allFilter.push({ $sort: sortOption })
     }
-
-    // console.log('matchConditions', matchConditions)
-    // console.log('sortOption', sortOption)
-    // console.log('allFilter', allFilter)
 
     const result = await GET_DB().collection(PRODUCT_COLLECTION_NAME).aggregate(allFilter).toArray()
 
@@ -201,10 +196,34 @@ const getAllProductPage = async (page, limit, filterOptions) => {
   }
 }
 
+const deleteProduct = async (productId) => {
+  await GET_DB().collection(PRODUCT_COLLECTION_NAME).updateOne(
+    { _id: new ObjectId(productId) },
+    {
+      $set: {
+        _destroy: true
+      }
+    }
+  )
+}
+
+const updateProduct = async (id, properties) => {
+  const newProduct = await GET_DB().collection(PRODUCT_COLLECTION_NAME).findOneAndUpdate(
+    { _id: new ObjectId(id) },
+    {
+      $set: properties
+    },
+    { returnDocument: 'after' }
+  )
+  return newProduct
+}
+
 export const productModel = {
   createNew,
   getDetails,
   findOneById,
   getAllProduct,
-  getAllProductPage
+  getAllProductPage,
+  deleteProduct,
+  updateProduct
 }

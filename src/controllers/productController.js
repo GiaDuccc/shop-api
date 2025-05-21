@@ -41,8 +41,6 @@ const getAllProductPage = async (req, res, next) => {
     // eslint-disable-next-line no-unused-vars
     let { page: _p, limit: _l, ...filters } = req.query
 
-    // console.log(filters)
-
     const products = await productService.getAllProductPage(page, limit, filters)
     res.status(StatusCodes.OK).json(products)
   } catch (error) {
@@ -50,9 +48,30 @@ const getAllProductPage = async (req, res, next) => {
   }
 }
 
+const deleteProduct = async (req, res, next) => {
+  try {
+    const productId = req.params.id
+    const updateProduct = await productService.update(productId)
+    res.status(StatusCodes.OK).json(updateProduct)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const updateProduct = async (req, res, next) => {
+  try {
+    const productId = req.params.id
+    const properties = req.body
+    const updateProduct = await productService.updateProduct(productId, properties)
+    res.status(StatusCodes.OK).json(updateProduct)
+  } catch (error) { next(error) }
+}
+
 export const productController = {
   createNew,
   getDetails,
   getAllProduct,
-  getAllProductPage
+  getAllProductPage,
+  deleteProduct,
+  updateProduct
 }

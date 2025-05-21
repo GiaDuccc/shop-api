@@ -1,14 +1,11 @@
 import express from 'express'
-import { StatusCodes } from 'http-status-codes'
 import { customerController } from '~/controllers/customerController'
 import { customerValidation } from '~/validations/customerValidation'
 
 const Router = express.Router()
 
 Router.route('/')
-  .get((req, res) => {
-    res.status(StatusCodes.OK).json({ message: 'GET: API get customers list' })
-  })
+  .get(customerController.getAllCustomerPage)
   .post(customerValidation.createNew, customerController.createNew)
 
 Router.route('/:id')
@@ -22,5 +19,11 @@ Router.route('/:id/add-order')
 
 Router.route('/:id/update-order')
   .put(customerController.updateOrder)
+
+Router.route('/:id/delete')
+  .put(customerController.deleteCustomer)
+
+Router.route('/:id/changeRole')
+  .put(customerValidation.changeRole, customerController.changeRole)
 
 export const customerRouter = Router

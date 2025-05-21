@@ -60,7 +60,27 @@ const addOrder = async (req, res, next) => {
   }
 }
 
+const changeRole = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    role: Joi.string().valid('client', 'admin')
+  })
+
+  try {
+    await correctCondition.validateAsync(req.body, {
+      abortEarly: false,
+      allowUnknown: true
+    })
+    next()
+
+  } catch (error) {
+    const customError = new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, 'role is invalid')
+    next(customError)
+  }
+
+}
+
 export const customerValidation = {
   createNew,
-  addOrder
+  addOrder,
+  changeRole
 }

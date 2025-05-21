@@ -8,12 +8,18 @@ const createNew = async (req, res, next) => {
   } catch (error) { next(Error) }
 }
 
-// const getAllOrders = async (req, res, next) => {
-//   try {
-//     const orders = await orderService.getAllOrders()
-//     res.status(StatusCodes.OK).json(orders)
-//   } catch (error) { next(Error) }
-// }
+const getAllOrdersPage = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 12
+
+    // eslint-disable-next-line no-unused-vars
+    let { page: _p, limit: _l, ...filters } = req.query
+
+    const orders = await orderService.getAllOrdersPage(page, limit, filters)
+    res.status(StatusCodes.OK).json(orders)
+  } catch (error) { next(Error) }
+}
 
 const getDetails = async (req, res, next) => {
   try {
@@ -75,21 +81,40 @@ const addInformation = async (req, res, next) => {
 const update = async (req, res, next) => {
   try {
     const orderId = req.params.id
-    const { total } = req.body
-    const updateOrder = await orderService.update(orderId, total)
+    const { total, payment } = req.body
+    const updateOrder = await orderService.update(orderId, total, payment)
 
+    res.status(StatusCodes.OK).json(updateOrder)
+  } catch (error) { next(error) }
+}
+
+const deleteOrder = async (req, res, next) => {
+  try {
+    const orderId = req.params.id
+    const updateOrder = await orderService.deleteOrder(orderId)
+    res.status(StatusCodes.OK).json(updateOrder)
+  } catch (error) { next(error) }
+}
+
+const updateStatus = async (req, res, next) => {
+  try {
+    const orderId = req.params.id
+    const { status } = req.body
+    const updateOrder = await orderService.updateStatus(orderId, status)
     res.status(StatusCodes.OK).json(updateOrder)
   } catch (error) { next(error) }
 }
 
 export const orderController = {
   createNew,
-  // getAllOrders,
+  getAllOrdersPage,
   getDetails,
   addProduct,
   increaseQuantity,
   decreaseQuantity,
   removeProduct,
   addInformation,
-  update
+  update,
+  deleteOrder,
+  updateStatus
 }

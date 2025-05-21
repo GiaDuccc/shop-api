@@ -18,16 +18,16 @@ const createNew = async (reqBody) => {
   } catch (error) { throw error }
 }
 
-// const getAllOrders = async () => {
-//   try {
-//     const orders = await orderModel.getAllOrders()
+const getAllOrdersPage = async (page, limit, filters) => {
+  try {
+    const orders = await orderModel.getAllOrdersPage(page, limit, filters)
 
-//     if (!orders) {
-//       throw new ApiError(StatusCodes.NOT_FOUND, 'Order is not found!')
-//     }
-//     return orders
-//   } catch (error) { throw error }
-// }
+    if (!orders) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Orders is not found!')
+    }
+    return orders
+  } catch (error) { throw error }
+}
 
 const getDetails = async (orderId) => {
   try {
@@ -75,8 +75,20 @@ const addInformation = async (orderId, reqBody) => {
   return updateOrder
 }
 
-const update = async (orderId, totalPrice) => {
-  const updateOrder = await orderModel.update(orderId, totalPrice)
+const update = async (orderId, totalPrice, payment) => {
+  const updateOrder = await orderModel.update(orderId, totalPrice, payment)
+
+  return updateOrder
+}
+
+const updateStatus = async (orderId, status) => {
+  const updateOrder = await orderModel.updateStatus(orderId, status)
+
+  return updateOrder
+}
+
+const deleteOrder = async (orderId) => {
+  const updateOrder = await orderModel.deleteOrder(orderId)
 
   return updateOrder
 }
@@ -84,11 +96,13 @@ const update = async (orderId, totalPrice) => {
 export const orderService = {
   createNew,
   getDetails,
-  // getAllOrders,
+  getAllOrdersPage,
   addProduct,
   increaseQuantity,
   decreaseQuantity,
   removeProduct,
   addInformation,
-  update
+  update,
+  deleteOrder,
+  updateStatus
 }
