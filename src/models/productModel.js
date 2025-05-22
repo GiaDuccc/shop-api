@@ -32,7 +32,7 @@ const PRODUCT_COLLECTION_SCHEMA = Joi.object({
     })
   ).min(1).required(),
   slug: Joi.string().required().min(3).trim().strict(),
-  importAt: Joi.date().timestamp('javascript').default(Date.now),
+  importAt: Joi.date().timestamp('javascript').default(new Date),
   exportAt: Joi.date().timestamp('javascript').default(null),
   updateAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false)
@@ -218,6 +218,32 @@ const updateProduct = async (id, properties) => {
   return newProduct
 }
 
+const updateQuantitySold = async (id, quantity) => {
+  const newProduct = await GET_DB().collection(PRODUCT_COLLECTION_NAME).findOneAndUpdate(
+    { _id: new ObjectId(id) },
+    {
+      $inc: { quantitySold: quantity }
+    },
+    { returnDocument: 'after' }
+  )
+  return newProduct
+}
+
+const getAllProductQuantity = async () => {
+  const productQuantity = await GET_DB().collection(PRODUCT_COLLECTION_NAME).countDocuments()
+  return productQuantity
+}
+
+const getTopBestSeller = async () => {
+  const topProduct = await GET_DB().collection(PRODUCT_COLLECTION_NAME)
+    .find({ quantitySold: { $exists: true } })
+    .sort({ quantitySold: -1 })
+    .limit(3)
+    .toArray()
+
+  return topProduct
+}
+
 export const productModel = {
   createNew,
   getDetails,
@@ -225,5 +251,8 @@ export const productModel = {
   getAllProduct,
   getAllProductPage,
   deleteProduct,
-  updateProduct
+  updateProduct,
+  updateQuantitySold,
+  getAllProductQuantity,
+  getTopBestSeller
 }

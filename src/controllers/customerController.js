@@ -1,4 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
+import { customerModel } from '~/models/customerModel'
 import { customerService } from '~/services/customerService'
 
 const createNew = async (req, res, next) => {
@@ -84,6 +85,34 @@ const changeRole = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const getAllCustomerQuantity = async (req, res, next) => {
+  try {
+    const customerQuantity = await customerModel.getAllCustomerQuantity()
+    res.status(StatusCodes.OK).json(customerQuantity)
+  } catch (error) { next(error) }
+}
+
+const getCustomerChartByDay = async (req, res, next) => {
+  try {
+    const customers = await customerService.getCustomerChartByDay()
+    res.status(StatusCodes.OK).json(customers)
+  } catch (error) { next(error) }
+}
+
+// const getCustomerChartByMonth = async (req, res, next) => {
+//   try {
+//     const customers = await customerService.getCustomerChartByMonth()
+//     res.status(StatusCodes.OK).json(customers)
+//   } catch (error) { next(error) }
+// }
+
+const getCustomerChartByYear = async (req, res, next) => {
+  try {
+    const customers = await customerService.getCustomerChartByYear()
+    res.status(StatusCodes.OK).json(customers)
+  } catch (error) { next(error) }
+}
+
 export const customerController = {
   createNew,
   getAllCustomerPage,
@@ -92,5 +121,9 @@ export const customerController = {
   addOrder,
   updateOrder,
   deleteCustomer,
-  changeRole
+  changeRole,
+  getAllCustomerQuantity,
+  getCustomerChartByDay,
+  // getCustomerChartByMonth,
+  getCustomerChartByYear
 }
