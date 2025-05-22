@@ -78,6 +78,28 @@ const changeRole = async (customerId, role) => {
   return updateCustomer
 }
 
+const getCustomerChartByDay = async () => {
+
+  const startOfToday = new Date()
+  startOfToday.setHours(0, 0, 0, 0)
+
+  const endOfToday = new Date()
+  endOfToday.setHours(23, 59, 59, 999)
+
+  const updateCustomer = await customerModel.getCustomerChartByDay(startOfToday, endOfToday)
+  return updateCustomer
+}
+
+const getCustomerChartByYear = async () => {
+
+  const now = new Date()
+  const startOfYear = new Date(now.getFullYear(), 0, 1)
+  const endOfYear = new Date(now.getFullYear() + 1, 0, 1)
+
+  const updateCustomer = await customerModel.getCustomerChartByYear(startOfYear, endOfYear)
+  return updateCustomer
+}
+
 export const customerService = {
   createNew,
   getAllCustomerPage,
@@ -86,7 +108,9 @@ export const customerService = {
   addOrder,
   updateOrder,
   deleteCustomer,
-  changeRole
+  changeRole,
+  getCustomerChartByDay,
+  getCustomerChartByYear
 }
 
 

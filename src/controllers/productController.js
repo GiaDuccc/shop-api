@@ -68,11 +68,38 @@ const updateProduct = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const updateQuantitySold = async (req, res, next) => {
+  try {
+    const productId = req.params.id
+    const { quantity } = req.body
+
+    const updateProduct = await productModel.updateQuantitySold(productId, quantity)
+    res.status(StatusCodes.OK).json(updateProduct)
+  } catch (error) { next(error) }
+}
+
+const getAllProductQuantity = async (req, res, next) => {
+  try {
+    const productQuantity = await productModel.getAllProductQuantity()
+    res.status(StatusCodes.OK).json(productQuantity)
+  } catch (error) { next(error) }
+}
+
+const getTopBestSeller = async (req, res, next) => {
+  try {
+    const topProduct = await productModel.getTopBestSeller()
+    res.status(StatusCodes.OK).json(topProduct)
+  } catch (error) { next(error) }
+}
+
 export const productController = {
   createNew,
   getDetails,
   getAllProduct,
   getAllProductPage,
   deleteProduct,
-  updateProduct
+  updateProduct,
+  updateQuantitySold,
+  getAllProductQuantity,
+  getTopBestSeller
 }

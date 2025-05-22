@@ -288,6 +288,148 @@ const deleteOrder = async (orderId) => {
   )
 }
 
+const getQuantityAndProfit = async () => {
+  const quantity = await GET_DB().collection(ORDER_COLLECTION_NAME).countDocuments()
+  const profit = await GET_DB().collection(ORDER_COLLECTION_NAME).aggregate([
+    {
+      $group: {
+        _id: null,
+        profit: { $sum: '$totalPrice' }
+      }
+    }
+  ]).toArray()
+  const result = {
+    quantity: quantity,
+    profit: profit[0]?.profit || 0
+  }
+
+  return result
+}
+
+const getOrderChartByDay = async (startOfToday, endOfToday) => {
+  const result = await GET_DB().collection(ORDER_COLLECTION_NAME).aggregate([
+    {
+      $match: {
+        createdAt: {
+          $gte: startOfToday,
+          $lte: endOfToday
+        }
+      }
+    },
+    {
+      $group: {
+        _id: { hour: { $hour: '$createdAt' } },
+        count: { $sum: 1 }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        hour: '$_id.hour',
+        count: 1
+      }
+    },
+    {
+      $sort: { hour: 1 }
+    }
+  ]).toArray()
+
+  const fullHours = Array.from({ length: 24 }, (_, hour) => {
+    const found = result.find(item => item.hour === hour)
+    return {
+      hour,
+      count: found ? found.count : 0
+    }
+  })
+
+  return fullHours
+}
+
+const getOrderChartByYear = async (startOfYear, endOfYear) => {
+
+  const orders = await GET_DB().collection(ORDER_COLLECTION_NAME).aggregate([
+    {
+      $match: {
+        createdAt: {
+          $gte: startOfYear,
+          $lt: endOfYear
+        }
+      }
+    },
+    {
+      $group: {
+        _id: {
+          month: { $month: '$createdAt' }
+        },
+        totalOrders: { $sum: 1 }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        month: '$_id.month',
+        totalOrders: 1
+      }
+    },
+    {
+      $sort: { month: 1 }
+    }
+  ]).toArray()
+
+  const productQuantitySold = await GET_DB().collection(ORDER_COLLECTION_NAME).aggregate([
+    {
+      $match: {
+        createdAt: {
+          $gte: startOfYear,
+          $lt: endOfYear
+        }
+      }
+    },
+    {
+      $unwind: '$items' // Gỡ từng sản phẩm trong mảng items
+    },
+    {
+      $group: {
+        _id: {
+          month: { $month: '$createdAt' }
+        },
+        totalQuantity: { $sum: '$items.quantity' }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        month: '$_id.month',
+        totalQuantity: 1
+      }
+    },
+    {
+      $sort: { month: 1 }
+    }
+  ]).toArray()
+
+  const fullDataOrder = []
+  const fullDataProductQuantity = []
+
+  for (let i = 1; i <= 12; i++) {
+    const orderMonth = orders.find(item => item.month === i)
+    fullDataOrder.push({
+      month: i,
+      totalOrders: orderMonth?.totalOrders || 0
+    })
+    const productMonth = productQuantitySold.find(item => item.month === i)
+    fullDataProductQuantity.push({
+      month: i,
+      totalQuantity: productMonth?.totalQuantity || 0
+    })
+  }
+
+  const result = { fullDataOrder, fullDataProductQuantity }
+
+  return result
+}
+
+
 export const orderModel = {
   createNew,
   findOneById,
@@ -300,5 +442,8 @@ export const orderModel = {
   update,
   getAllOrdersPage,
   deleteOrder,
-  updateStatus
+  updateStatus,
+  getQuantityAndProfit,
+  getOrderChartByDay,
+  getOrderChartByYear
 }

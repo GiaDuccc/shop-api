@@ -109,11 +109,20 @@ Router.route('/')
 Router.route('/filter')
   .get(productController.getAllProductPage)
 
+Router.route('/allProductQuantity')
+  .get(productController.getAllProductQuantity)
+
+Router.route('/topBestSeller')
+  .get(productController.getTopBestSeller)
+
 Router.route('/:id')
   .get(productController.getDetails)
   .put(productValidation.updateProduct, productController.updateProduct)
 Router.route('/:id/delete')
   .put(productController.deleteProduct)
+
+Router.route('/:id/quantitySold')
+  .put(productController.updateQuantitySold)
 
 
 export const productRouter = Router

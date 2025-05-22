@@ -8,6 +8,15 @@ Router.route('/')
   .get(orderController.getAllOrdersPage)
   .post(orderValidation.createNew, orderController.createNew)
 
+Router.route('/quantityAndProfit')
+  .get(orderController.getQuantityAndProfit)
+
+Router.route('/orderChartByDay')
+  .get(orderController.getOrderChartByDay)
+
+Router.route('/orderAndProductSoldChartByYear')
+  .get(orderController.getOrderChartByYear)
+
 Router.route('/:id')
   .get(orderController.getDetails)
   .put(orderController.update) // update

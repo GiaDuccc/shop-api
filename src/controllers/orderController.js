@@ -1,4 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
+import { orderModel } from '~/models/orderModel'
 import { orderService } from '~/services/orderService'
 
 const createNew = async (req, res, next) => {
@@ -105,6 +106,27 @@ const updateStatus = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const getQuantityAndProfit = async (req, res, next) => {
+  try {
+    const quantityAndProfit = await orderModel.getQuantityAndProfit()
+    res.status(StatusCodes.OK).json(quantityAndProfit)
+  } catch (error) { next(error) }
+}
+
+const getOrderChartByDay = async (req, res, next) => {
+  try {
+    const orders = await orderService.getOrderChartByDay()
+    res.status(StatusCodes.OK).json(orders)
+  } catch (error) { next(error) }
+}
+
+const getOrderChartByYear = async (req, res, next) => {
+  try {
+    const orders = await orderService.getOrderChartByYear()
+    res.status(StatusCodes.OK).json(orders)
+  } catch (error) { next(error) }
+}
+
 export const orderController = {
   createNew,
   getAllOrdersPage,
@@ -116,5 +138,8 @@ export const orderController = {
   addInformation,
   update,
   deleteOrder,
-  updateStatus
+  updateStatus,
+  getQuantityAndProfit,
+  getOrderChartByDay,
+  getOrderChartByYear
 }

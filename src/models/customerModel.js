@@ -38,7 +38,7 @@ const CUSTOMER_COLLECTION_SCHEMA = Joi.object({
   role: Joi.string().valid('manager', 'admin', 'client').default('client'),
   address: Joi.string().max(256).trim().default('Unknown'),
   isActive: Joi.boolean().default(true),
-  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  createdAt: Joi.date().timestamp('javascript').default(new Date),
   updatedAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false)
 })
@@ -234,6 +234,93 @@ const changeRole = async (customerId, role) => {
   return 'Change role customer successfully'
 }
 
+const getAllCustomerQuantity = async () => {
+  const customerQuantity = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).countDocuments()
+  return customerQuantity
+}
+
+const getCustomerChartByDay = async (startOfToday, endOfToday) => {
+  const result = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).aggregate([
+    {
+      $match: {
+        createdAt: {
+          $gte: startOfToday,
+          $lte: endOfToday
+        }
+      }
+    },
+    {
+      $group: {
+        _id: { hour: { $hour: '$createdAt' } },
+        count: { $sum: 1 }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        hour: '$_id.hour',
+        count: 1
+      }
+    },
+    {
+      $sort: { hour: 1 }
+    }
+  ]).toArray()
+
+  const fullHours = Array.from({ length: 24 }, (_, hour) => {
+    const found = result.find(item => item.hour === hour)
+    return {
+      hour,
+      count: found ? found.count : 0
+    }
+  })
+  return fullHours
+}
+
+const getCustomerChartByYear = async (startOfYear, endOfYear) => {
+
+  const rawData = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).aggregate([
+    {
+      $match: {
+        createdAt: {
+          $gte: startOfYear,
+          $lt: endOfYear
+        }
+      }
+    },
+    {
+      $group: {
+        _id: {
+          month: { $month: '$createdAt' }
+        },
+        totalCustomers: { $sum: 1 }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        month: '$_id.month',
+        totalCustomers: 1
+      }
+    },
+    {
+      $sort: { month: 1 }
+    }
+  ]).toArray()
+
+  const fullData = []
+  for (let i = 1; i <= 12; i++) {
+    const monthData = rawData.find(item => item.month === i)
+    fullData.push({
+      month: i,
+      totalCustomers: monthData?.totalCustomers || 0
+    })
+  }
+
+  return fullData
+}
+
+
 export const customerModel = {
   createNew,
   findOneById,
@@ -243,5 +330,8 @@ export const customerModel = {
   addOrder,
   updateOrder,
   deleteCustomer,
-  changeRole
+  changeRole,
+  getAllCustomerQuantity,
+  getCustomerChartByDay,
+  getCustomerChartByYear
 }

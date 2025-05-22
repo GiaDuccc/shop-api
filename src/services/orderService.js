@@ -93,6 +93,28 @@ const deleteOrder = async (orderId) => {
   return updateOrder
 }
 
+const getOrderChartByDay = async () => {
+
+  const startOfToday = new Date()
+  startOfToday.setHours(0, 0, 0, 0)
+
+  const endOfToday = new Date()
+  endOfToday.setHours(23, 59, 59, 999)
+
+  const orderChart = await orderModel.getOrderChartByDay(startOfToday, endOfToday)
+  return orderChart
+}
+
+const getOrderChartByYear = async () => {
+
+  const now = new Date()
+  const startOfYear = new Date(now.getFullYear(), 0, 1)
+  const endOfYear = new Date(now.getFullYear() + 1, 0, 1)
+
+  const orderChart = await orderModel.getOrderChartByYear(startOfYear, endOfYear)
+  return orderChart
+}
+
 export const orderService = {
   createNew,
   getDetails,
@@ -104,5 +126,7 @@ export const orderService = {
   addInformation,
   update,
   deleteOrder,
-  updateStatus
+  updateStatus,
+  getOrderChartByDay,
+  getOrderChartByYear
 }
