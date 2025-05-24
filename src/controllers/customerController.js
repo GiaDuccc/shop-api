@@ -113,6 +113,16 @@ const getCustomerChartByYear = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const updateCustomer = async (req, res, next) => {
+  try {
+    const customerId = req.params.id
+    const { properties } = req.body
+
+    const updateCustomer = await customerModel.updateCustomer(customerId, properties)
+    res.status(StatusCodes.OK).json(updateCustomer)
+  } catch (error) { next(error) }
+}
+
 export const customerController = {
   createNew,
   getAllCustomerPage,
@@ -125,5 +135,6 @@ export const customerController = {
   getAllCustomerQuantity,
   getCustomerChartByDay,
   // getCustomerChartByMonth,
-  getCustomerChartByYear
+  getCustomerChartByYear,
+  updateCustomer
 }

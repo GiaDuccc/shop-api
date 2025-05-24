@@ -320,6 +320,32 @@ const getCustomerChartByYear = async (startOfYear, endOfYear) => {
   return fullData
 }
 
+const updateCustomer = async (customerId, properties) => {
+  const existEmail = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ email: properties.email, _destroy: false })
+
+  const existPhone = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ phone: properties.phone, _destroy: false })
+
+  if (existEmail || existPhone) {
+    const errors = {}
+
+    if (existEmail) errors.email = 'Email already exists'
+    if (existPhone) errors.phone = 'Phone number already exists'
+
+    throw new ApiError(StatusCodes.CONFLICT, 'Duplicate data found', errors)
+  }
+
+  await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOneAndUpdate(
+    {
+      _id: new ObjectId(customerId),
+      _destroy: false
+    },
+    {
+      $set: properties
+    }
+  )
+
+  return 'update success'
+}
 
 export const customerModel = {
   createNew,
@@ -333,5 +359,6 @@ export const customerModel = {
   changeRole,
   getAllCustomerQuantity,
   getCustomerChartByDay,
-  getCustomerChartByYear
+  getCustomerChartByYear,
+  updateCustomer
 }

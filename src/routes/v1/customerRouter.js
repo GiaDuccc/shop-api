@@ -20,11 +20,14 @@ Router.route('/customerChartByDay')
 Router.route('/customerChartByYear')
   .get(customerController.getCustomerChartByYear)
 
+Router.route('/login')
+  .post(customerController.login)
+
 Router.route('/:id')
   .get(customerController.getDetails)
 
-Router.route('/login')
-  .post(customerController.login)
+Router.route('/:id/updateCustomer')
+  .put(customerValidation.updateCustomer, customerController.updateCustomer)
 
 Router.route('/:id/add-order')
   .put(customerValidation.addOrder, customerController.addOrder)
