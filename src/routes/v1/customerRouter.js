@@ -8,14 +8,14 @@ Router.route('/')
   .get(customerController.getAllCustomerPage)
   .post(customerValidation.createNew, customerController.createNew)
 
+// Router.route('/chatbot')
+//   .post(customerController.chatbot)
+
 Router.route('/allCustomerQuantity')
   .get(customerController.getAllCustomerQuantity)
 
 Router.route('/customerChartByDay')
   .get(customerController.getCustomerChartByDay)
-
-// Router.route('/customerChartByMonth')
-//   .get(customerController.getCustomerChartByMonth)
 
 Router.route('/customerChartByYear')
   .get(customerController.getCustomerChartByYear)

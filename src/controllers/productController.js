@@ -52,7 +52,7 @@ const getAllProductPage = async (req, res, next) => {
 const deleteProduct = async (req, res, next) => {
   try {
     const productId = req.params.id
-    const updateProduct = await productService.update(productId)
+    const updateProduct = await productService.deleteProduct(productId)
     res.status(StatusCodes.OK).json(updateProduct)
   } catch (error) {
     next(error)
@@ -92,6 +92,22 @@ const getTopBestSeller = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const getLimitedProductsController = async (req, res, next) => {
+  const { brand, type } = req.query
+  try {
+    const products = await productService.getLimitedProducts(brand, type)
+    res.status(StatusCodes.OK).json(products)
+  } catch (error) { next(error) }
+}
+
+const getTypeFromNavbar = async (req, res, next) => {
+  const { brand } = req.query
+  try {
+    const types = await productModel.getTypeFromNavbar(brand)
+    res.status(StatusCodes.OK).json(types)
+  } catch (error) { next(error) }
+}
+
 export const productController = {
   createNew,
   getDetails,
@@ -101,5 +117,7 @@ export const productController = {
   updateProduct,
   updateQuantitySold,
   getAllProductQuantity,
-  getTopBestSeller
+  getTopBestSeller,
+  getLimitedProductsController,
+  getTypeFromNavbar
 }
