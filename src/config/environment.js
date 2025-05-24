@@ -9,5 +9,6 @@ export const env = {
 
   BUILD_MODE: process.env.BUILD_MODE,
 
-  AUTHOR: process.env.AUTHOR
+  AUTHOR: process.env.AUTHOR,
+  GEMINI_KEY: process.env.GEMINI_KEY
 }

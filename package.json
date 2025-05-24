@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.22.10",
+    "@google/generative-ai": "^0.24.1",
     "async-exit-hook": "^2.0.1",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",

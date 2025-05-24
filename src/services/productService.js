@@ -61,7 +61,7 @@ const getAllProductPage = async (page, limit, filters) => {
 
 const deleteProduct = async (productId) => {
   try {
-    const products = await productModel.update(productId)
+    const products = await productModel.deleteProduct(productId)
     return products
   } catch (error) { throw error }
 }
@@ -88,11 +88,19 @@ const updateProduct = async (id, properties) => {
   } catch (error) { throw error }
 }
 
+const getLimitedProducts = async (brand, type) => {
+  // Có thể xử lý logic gì đó tại đây nếu cần
+  const products = await productModel.getProductsByBrandAndType(brand, type)
+  return products
+}
+
+
 export const productService = {
   createNew,
   getDetails,
   getAllProduct,
   getAllProductPage,
   deleteProduct,
-  updateProduct
+  updateProduct,
+  getLimitedProducts
 }

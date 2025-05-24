@@ -106,6 +106,12 @@ Router.route('/')
   .get(productController.getAllProduct)
   .post(productValidation.createNew, productController.createNew)
 
+Router.route('/sliderType')
+  .get(productController.getLimitedProductsController)
+
+Router.route('/typeAndNavbarImageFromBrand')
+  .get(productController.getTypeFromNavbar)
+
 Router.route('/filter')
   .get(productController.getAllProductPage)
 

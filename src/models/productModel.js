@@ -1,7 +1,7 @@
 /* eslint-disable no-lonely-if */
 import Joi from 'joi'
 import { GET_DB } from '~/config/mongodb'
-import { ObjectId, ReturnDocument } from 'mongodb'
+import { ObjectId } from 'mongodb'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 
@@ -11,7 +11,7 @@ const PRODUCT_COLLECTION_SCHEMA = Joi.object({
   highLight: Joi.string().max(255).trim().default(''),
   desc: Joi.string().trim().default(''),
   type: Joi.string().valid('sneaker', 'classic', 'running', 'basketball', 'football', 'boot').required(),
-  brand: Joi.string().min(3).max(50).trim().lowercase().valid('nike', 'adidas', 'puma', 'newbalance', 'converse', 'biti\'s', 'bitis').required(),
+  brand: Joi.string().min(3).max(50).trim().lowercase().valid('nike', 'adidas', 'puma', 'newbalance', 'vans').required(),
   price: Joi.number().min(0).required(),
   stock: Joi.number().min(0),
   adImage: Joi.string().default(''),
@@ -244,6 +244,38 @@ const getTopBestSeller = async () => {
   return topProduct
 }
 
+const getProductsByBrandAndType = async (brand, type) => {
+  const a = await GET_DB()
+    .collection(PRODUCT_COLLECTION_NAME)
+    .find({ brand: brand, type: type })
+    .limit(6)
+    .toArray()
+
+  return a
+}
+
+const getTypeFromNavbar = async (brand) => {
+  const typesAndNavbarImages = await GET_DB().collection(PRODUCT_COLLECTION_NAME).aggregate([
+    { $match: { brand: brand, _destroy: false } },
+    { $sort: { createdAt: -1 } }, // hoặc { _id: -1 } nếu không có createdAt
+    {
+      $group: {
+        _id: '$type',
+        latestProduct: { $first: '$$ROOT' }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        type: '$_id',
+        navbarImage: '$latestProduct.navbarImage'
+      }
+    }
+  ]).toArray()
+
+  return typesAndNavbarImages
+}
+
 export const productModel = {
   createNew,
   getDetails,
@@ -254,5 +286,7 @@ export const productModel = {
   updateProduct,
   updateQuantitySold,
   getAllProductQuantity,
-  getTopBestSeller
+  getTopBestSeller,
+  getProductsByBrandAndType,
+  getTypeFromNavbar
 }
