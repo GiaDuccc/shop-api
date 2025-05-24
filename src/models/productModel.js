@@ -249,6 +249,7 @@ const getProductsByBrandAndType = async (brand, type) => {
     .collection(PRODUCT_COLLECTION_NAME)
     .find({ brand: brand, type: type })
     .limit(6)
+    .sort({ importAt: -1 })
     .toArray()
 
   return a
@@ -261,7 +262,7 @@ const getTypeFromNavbar = async (brand) => {
     {
       $group: {
         _id: '$type',
-        latestProduct: { $first: '$$ROOT' }
+        latestProduct: { $last: '$$ROOT' }
       }
     },
     {

@@ -79,8 +79,42 @@ const changeRole = async (req, res, next) => {
 
 }
 
+const updateCustomer = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    lastName: Joi.string().max(256).trim().messages({
+      'string.empty': 'lastName is not allow empty'
+    }),
+    firstName: Joi.string().max(256).trim().messages({
+      'string.empty': 'fistName is not allow empty'
+    }),
+    email: Joi.string().email({ tlds: { allow: true } }).trim().lowercase().messages({
+      'string.email': 'email must be a valid email address',
+      'string.empty': 'email is not allow empty'
+    }),
+    phone: Joi.string().pattern(/^\+?[0-9]{10,15}$/).messages({
+      'string.pattern.base': 'phone number is invalid',
+      'string.empty': 'phone is not allow empty'
+    }),
+    address: Joi.string().trim().messages({
+      'string.empty': 'address is not allow empty'
+    })
+  })
+
+  try {
+    await correctCondition.validateAsync(req.body.properties, { abortEarly: false })
+    next()
+
+  } catch (error) {
+    const errorMessage = new Error(error).message
+
+    const customError = new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage)
+    next(customError)
+  }
+}
+
 export const customerValidation = {
   createNew,
   addOrder,
-  changeRole
+  changeRole,
+  updateCustomer
 }
