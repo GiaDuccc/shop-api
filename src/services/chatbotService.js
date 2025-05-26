@@ -19,7 +19,7 @@ const chatbot = async (message, conversation) => {
     const cleaned = JSON.parse(request.response.text().replace(/```json\s*|\s*```/g, ''))
     // console.log(cleaned)
 
-    if (!Object.values(cleaned).some(value => value !== '')) res = 'Please provide at least one item so we can check the stock for you, reply like a seller would, reply in customer language, only vietnamese and english'
+    if (!Object.values(cleaned).some(value => value !== '')) res = 'Please provide at least one item so we can check the stock for you, reply like a seller would, reply in vietnamese '
 
     let { brand, name, color, size } = cleaned
     name = brand + ' ' + name
@@ -28,14 +28,14 @@ const chatbot = async (message, conversation) => {
 
     // console.log(product)
 
-    if (!product) { res = `product does not exist, consider yourself as a shoes salesperson informing them of the availability of the product they are looking for ${brand}, ${name}, ${color}, ${size}. If you see anything missing brand, name, color, size, ask the customer to fill it in. reply in customer language, only vietnamese and english, short about 3 sentences` }
+    if (!product) { res = `old conversation: ${conversation} , value response: product does not exist, consider yourself as a shoes salesperson informing them of the availability of the product they are looking for ${brand}, ${name}, ${color}, ${size}. If you see anything missing brand, name, color, size, ask the customer to fill it in. reply in vietnamese, short about 3 sentences` }
     else {
       // res = `Here is product info: ${JSON.stringify(product, null, 2)}, here is the element in customer request ${brand}, ${name}, ${color}, ${size}. Product stock notification from product, indicating whether it's in stock or out of stock using the format: product out of stock or in stock. If it's in stock, add a short description, price, size, color to inform the customer — write as naturally as possible, like a seller would, reply in vietnamese, short about 3 sentences`
-      res = `Here is old message ${conversation} .Here is product info: ${JSON.stringify(product, null, 2)}, here is customer request ${message}. Product stock notification from product, indicating whether it's in stock or out of stock using the format: product out of stock or in stock. If it's in stock, add a short description, price, size, color to inform the customer — write as naturally as possible, like a shoes seller would, reply in customer language, only vietnamese and english, short about 3 sentences, no use '*'`
+      res = `Here is old message ${conversation} .Here is product info: ${JSON.stringify(product, null, 2)}, here is customer request ${message}. Product stock notification from product, indicating whether it's in stock or out of stock using the format: product out of stock or in stock. If it's in stock, add a short description, price, size, color to inform the customer — write as naturally as possible, like a shoes seller would, reply in vietnamese, short about 3 sentences, no use '*'`
     }
 
   } catch (error) {
-    res = 'Please provide at least one item so we can check the stock for you, reply like a seller would, reply in customer language, only vietnamese and english'
+    res = 'Please provide at least one item so we can check the stock for you, reply like a seller would, reply in vietnamese'
   }
 
   const result = await model.generateContent(res)
