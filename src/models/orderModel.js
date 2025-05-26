@@ -223,20 +223,20 @@ const getAllOrdersPage = async (page, limit, filterOptions) => {
     let sortOption = {}
 
     switch (sort) {
-      case 'newest':
-        sortOption = { createdAt: -1 }
-        break
-      case 'oldest':
-        sortOption = { createdAt: 1 }
-        break
-      case 'low-high':
-        sortOption = { totalPrice: 1 }
-        break
-      case 'high-low':
-        sortOption = { totalPrice: -1 }
-        break
-      default:
-        sortOption = {}
+    case 'newest':
+      sortOption = { createdAt: -1 }
+      break
+    case 'oldest':
+      sortOption = { createdAt: 1 }
+      break
+    case 'low-high':
+      sortOption = { totalPrice: 1 }
+      break
+    case 'high-low':
+      sortOption = { totalPrice: -1 }
+      break
+    default:
+      sortOption = {}
     }
 
     const matchConditions = {

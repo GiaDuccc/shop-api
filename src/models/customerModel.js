@@ -86,20 +86,20 @@ const getAllCustomerPage = async (page, limit, filters) => {
   let sortOption = {}
 
   switch (sort) {
-    case 'newest':
-      sortOption = { createdAt: -1 }
-      break
-    case 'oldest':
-      sortOption = { createdAt: 1 }
-      break
-    case 'A-Z':
-      sortOption = { lastName: 1 }
-      break
-    case 'Z-A':
-      sortOption = { lastName: -1 }
-      break
-    default:
-      sortOption = {}
+  case 'newest':
+    sortOption = { createdAt: -1 }
+    break
+  case 'oldest':
+    sortOption = { createdAt: 1 }
+    break
+  case 'A-Z':
+    sortOption = { lastName: 1 }
+    break
+  case 'Z-A':
+    sortOption = { lastName: -1 }
+    break
+  default:
+    sortOption = {}
   }
 
   const matchConditions = {

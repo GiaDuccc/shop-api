@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { MongoClient, ServerApiVersion } from 'mongodb'
 import { env } from './environment'
 
