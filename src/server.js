@@ -27,10 +27,18 @@ const START_SERVER = () => {
 
   app.use('/allProduct', express.static(path.join(__dirname, '../allProduct')))
 
-  app.listen(env.APP_PORT, env.APP_HOST, () => {
-    console.log('env.BUILD_MODE:', process.env.BUILD_MODE)
-    console.log(`Hello Gia Duc, I am running at http://${env.APP_HOST}:${env.APP_PORT}`)
-  })
+  if (env.BUILD_MODE === 'production') {
+    app.listen(process.env.PORT, () => {
+      console.log('env.BUILD_MODE:', process.env.BUILD_MODE)
+      console.log(`Hello ${env.AUTHOR}, I am running at ${process.env.PORT}`)
+    })
+  } else {
+    // Dev enviroment
+    app.listen(env.APP_PORT, env.APP_HOST, () => {
+      console.log('env.BUILD_MODE:', process.env.BUILD_MODE)
+      console.log(`Hello Gia Duc, I am running at http://${env.APP_HOST}:${env.APP_PORT}`)
+    })
+  }
 
   exitHook(() => {
     console.log('server is shutting down')
