@@ -11,7 +11,7 @@ const PRODUCT_COLLECTION_SCHEMA = Joi.object({
   highLight: Joi.string().max(255).trim().default(''),
   desc: Joi.string().trim().default(''),
   type: Joi.string().valid('sneaker', 'classic', 'running', 'basketball', 'football', 'boot').required(),
-  brand: Joi.string().min(3).max(50).trim().lowercase().valid('nike', 'adidas', 'puma', 'new balance', 'vans').required(),
+  brand: Joi.string().min(3).max(50).trim().lowercase().valid('nike', 'adidas', 'puma', 'new balance', 'vans', 'balenciaga').required(),
   price: Joi.number().min(0).required(),
   stock: Joi.number().min(0),
   adImage: Joi.string().default(''),
