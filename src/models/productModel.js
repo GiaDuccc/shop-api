@@ -154,20 +154,20 @@ const getAllProductPage = async (page, limit, filterOptions) => {
     let sortOption = {}
 
     switch (sort) {
-    case 'newest':
-      sortOption = { importAt: -1 }
-      break
-    case 'oldest':
-      sortOption = { importAt: 1 }
-      break
-    case 'low-high':
-      sortOption = { price: 1 }
-      break
-    case 'high-low':
-      sortOption = { price: -1 }
-      break
-    default:
-      sortOption = {}
+      case 'newest':
+        sortOption = { importAt: -1 }
+        break
+      case 'oldest':
+        sortOption = { importAt: 1 }
+        break
+      case 'low-high':
+        sortOption = { price: 1 }
+        break
+      case 'high-low':
+        sortOption = { price: -1 }
+        break
+      default:
+        sortOption = {}
     }
 
     const allFilter = [
@@ -245,14 +245,20 @@ const getTopBestSeller = async () => {
 }
 
 const getProductsByBrandAndType = async (brand, type) => {
-  const a = await GET_DB()
+  if (type) {
+    return await GET_DB()
+      .collection(PRODUCT_COLLECTION_NAME)
+      .find({ brand: brand, type: type })
+      .limit(6)
+      .sort({ importAt: -1 })
+      .toArray()
+  }
+  return await GET_DB()
     .collection(PRODUCT_COLLECTION_NAME)
-    .find({ brand: brand, type: type })
+    .find({ brand: brand })
     .limit(6)
     .sort({ importAt: -1 })
     .toArray()
-
-  return a
 }
 
 const getTypeFromNavbar = async (brand) => {
