@@ -37,7 +37,8 @@ const getAllProduct = async (req, res, next) => {
 const getAllProductPage = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1
-    const limit = parseInt(req.query.limit) || 12
+    // const limit = parseInt(req.query.limit) || 12
+    const limit = 24
 
     // eslint-disable-next-line no-unused-vars
     let { page: _p, limit: _l, ...filters } = req.query
