@@ -1,9 +1,9 @@
 {
-  "name": "nodejs-expressjs-mongodb-base-project",
+  "name": "nice-store-backend",
   "private": true,
   "version": "1.0.0",
-  "author": "TrungQuanDev - Một Lập Trình Viên",
-  "description": "https://youtube.com/@trungquandev",
+  "author": "GiaDuc",
+  "description": "hi every one",
   "engines": {
     "node": ">=18.x"
   },
