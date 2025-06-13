@@ -13,7 +13,7 @@ export const corsOptions = {
     if (env.BUILD_MODE === 'dev') {
       return callback(null, true)
     }
-
+    console.log(origin)
     // Kiểm tra xem origin có phải là domain được chấp nhận hay không
     if (WHITELIST_DOMAINS.includes(origin)) {
       return callback(null, true)
