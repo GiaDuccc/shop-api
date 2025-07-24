@@ -27,8 +27,27 @@ const getAllCustomerPage = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   try {
-    const customerLogin = await customerService.login(req.body)
-    res.status(StatusCodes.OK).json(customerLogin)
+    const loginResult = await customerService.login(req.body)
+    res.status(StatusCodes.OK).json(loginResult)
+  } catch (error) { next(error) }
+}
+
+const logout = async (req, res, next) => {
+  try {
+    const result = await customerService.logout(req.user.userId)
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) { next(error) }
+}
+
+const refreshToken = async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body
+    if (!refreshToken) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Refresh token is required' })
+    }
+
+    const result = await customerService.refreshToken(refreshToken)
+    res.status(StatusCodes.OK).json(result)
   } catch (error) { next(error) }
 }
 
@@ -128,6 +147,8 @@ export const customerController = {
   getAllCustomerPage,
   getDetails,
   login,
+  logout,
+  refreshToken,
   addOrder,
   updateOrder,
   deleteCustomer,

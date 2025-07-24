@@ -37,6 +37,7 @@ const CUSTOMER_COLLECTION_SCHEMA = Joi.object({
   slug: Joi.string().min(3).trim().strict(),
   role: Joi.string().valid('manager', 'admin', 'client').default('client'),
   address: Joi.string().max(256).trim().default('Unknown'),
+  refreshToken: Joi.string().allow(null).default(null),
   isActive: Joi.boolean().default(true),
   createdAt: Joi.date().timestamp('javascript').default(new Date),
   updatedAt: Joi.date().timestamp('javascript').default(null),
@@ -347,6 +348,23 @@ const updateCustomer = async (customerId, properties) => {
   return 'update success'
 }
 
+const updateRefreshToken = async (customerId, refreshToken) => {
+  try {
+    await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(customerId) },
+      {
+        $set: {
+          refreshToken: refreshToken,
+          updatedAt: new Date()
+        }
+      }
+    )
+    return true
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const customerModel = {
   createNew,
   findOneById,
@@ -360,5 +378,6 @@ export const customerModel = {
   getAllCustomerQuantity,
   getCustomerChartByDay,
   getCustomerChartByYear,
-  updateCustomer
+  updateCustomer,
+  updateRefreshToken
 }
