@@ -4,7 +4,8 @@ import { customerModel } from '~/models/customerModel'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
 import bcrypt from 'bcryptjs'
-
+import jwt from 'jsonwebtoken'
+import { env } from '~/config/environment'
 const createNew = async (reqBody) => {
   try {
     const newCustomer = {
@@ -36,10 +37,75 @@ const login = async (reqBody) => {
     const customerLogin = await customerModel.login(reqBody)
 
     if (!customerLogin) {
-      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid Email or Password.')
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid credentials')
     }
 
-    return customerLogin
+    // Tạo JWT token
+    const token = jwt.sign(
+      {
+        userId: customerLogin._id,
+        email: customerLogin.email,
+        role: customerLogin.role
+      },
+      env.JWT_SECRET,
+      { expiresIn: '24h' }
+    )
+
+    // Tạo refresh token
+    const refreshToken = jwt.sign(
+      { userId: customerLogin._id },
+      env.JWT_REFRESH_SECRET,
+      { expiresIn: '7d' }
+    )
+
+    // Lưu refresh token vào database (optional)
+    await customerModel.updateRefreshToken(customerLogin._id, refreshToken)
+
+    // Trả về thông tin an toàn
+    return {
+      token,
+      refreshToken,
+      user: {
+        _id: customerLogin._id,
+        email: customerLogin.email,
+        firstName: customerLogin.firstName,
+        lastName: customerLogin.lastName,
+        role: customerLogin.role,
+        phone: customerLogin.phone
+      }
+    }
+  } catch (error) { throw error }
+}
+
+const logout = async (userId) => {
+  try {
+    // Xóa refresh token
+    await customerModel.updateRefreshToken(userId, null)
+    return { message: 'Logged out successfully' }
+  } catch (error) { throw error }
+}
+
+const refreshToken = async (refreshToken) => {
+  try {
+    const decoded = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET)
+    const user = await customerModel.findOneById(decoded.userId)
+
+    if (!user || user.refreshToken !== refreshToken) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid refresh token')
+    }
+
+    // Tạo token mới
+    const newToken = jwt.sign(
+      {
+        userId: user._id,
+        email: user.email,
+        role: user.role
+      },
+      env.JWT_SECRET,
+      { expiresIn: '24h' }
+    )
+
+    return { token: newToken }
   } catch (error) { throw error }
 }
 
@@ -105,6 +171,8 @@ export const customerService = {
   getAllCustomerPage,
   getDetails,
   login,
+  logout,
+  refreshToken,
   addOrder,
   updateOrder,
   deleteCustomer,
