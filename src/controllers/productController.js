@@ -109,6 +109,14 @@ const getTypeFromNavbar = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const getRandomProductsWithBrand = async (req, res, next) => {
+  const { brand } = req.query
+  try {
+    const products = await productModel.getRandomProductsWithBrand(brand)
+    res.status(StatusCodes.OK).json(products)
+  } catch (error) { next(error) }
+}
+
 export const productController = {
   createNew,
   getDetails,
@@ -120,5 +128,6 @@ export const productController = {
   getAllProductQuantity,
   getTopBestSeller,
   getLimitedProductsController,
-  getTypeFromNavbar
+  getTypeFromNavbar,
+  getRandomProductsWithBrand
 }

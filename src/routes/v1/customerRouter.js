@@ -20,7 +20,7 @@ Router.route('/customerChartByYear')
   .get(authenticateToken, authorizeRoles('admin', 'manager'), customerController.getCustomerChartByYear)
 
 Router.route('/login')
-  .post(loginLimiter, customerController.login)
+  .post(customerController.login)
 
 Router.route('/logout')
   .post(authenticateToken, customerController.logout)

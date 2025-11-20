@@ -5,9 +5,18 @@ import { OBJECT_ID_RULE } from '~/utils/validators'
 
 const createNew = async (req, res, next) => {
   const correctCondition = Joi.object({
+    customerId: Joi.string().pattern(OBJECT_ID_RULE).required().message({
+      'any.required': 'customerId is required',
+      'string.base': 'customerId must be a string',
+      'string.pattern.base': 'customerId must be a valid ObjectId'
+    }),
     items: Joi.array().items(
       Joi.object({
-        productId: Joi.string().pattern(OBJECT_ID_RULE).message('Your string fails to match the productId pattern!').required(),
+        productId: Joi.string().pattern(OBJECT_ID_RULE).message({
+          'any.required': 'productId is required',
+          'string.base': 'productId must be a string',
+          'string.pattern.base': 'productId must be a valid ObjectId'
+        }).required(),
         quantity: Joi.number().min(1).default(1).required(),
         color: Joi.string().required(),
         price: Joi.number().min(0).required()

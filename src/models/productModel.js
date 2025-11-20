@@ -283,6 +283,17 @@ const getTypeFromNavbar = async (brand) => {
   return typesAndNavbarImages
 }
 
+const getRandomProductsWithBrand = async (brand) => {
+  const products = await GET_DB().collection(PRODUCT_COLLECTION_NAME)
+    .aggregate([
+      { $match: { brand: brand, _destroy: false } },
+      { $sample: { size: 6 } }
+    ])
+    .toArray()
+
+  return products
+}
+
 export const productModel = {
   createNew,
   getDetails,
@@ -295,5 +306,6 @@ export const productModel = {
   getAllProductQuantity,
   getTopBestSeller,
   getProductsByBrandAndType,
-  getTypeFromNavbar
+  getTypeFromNavbar,
+  getRandomProductsWithBrand
 }

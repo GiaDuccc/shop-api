@@ -141,6 +141,9 @@ Router.route('/allProductQuantity')
 Router.route('/topBestSeller')
   .get(productController.getTopBestSeller)
 
+Router.route('/randomProductsWithBrand')
+  .get(productController.getRandomProductsWithBrand)
+
 Router.route('/:id')
   .get(productController.getDetails)
   .put(productValidation.updateProduct, productController.updateProduct)

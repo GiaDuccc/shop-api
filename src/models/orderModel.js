@@ -5,6 +5,7 @@ import { OBJECT_ID_RULE } from '~/utils/validators'
 
 const ORDER_COLLECTION_NAME = 'orders'
 const ORDER_COLLECTION_SCHEMA = Joi.object({
+  customerId: Joi.string().pattern(OBJECT_ID_RULE).required(),
   items: Joi.array().items(
     Joi.object({
       productId: Joi.string().pattern(OBJECT_ID_RULE).message('Your string fails to match the productId pattern!').required(),
@@ -15,7 +16,6 @@ const ORDER_COLLECTION_SCHEMA = Joi.object({
   totalPrice: Joi.number().min(0).default(0),
   status: Joi.string().valid('cart', 'pending', 'delivering', 'completed', 'canceled').default('cart'),
   createdAt: Joi.date().timestamp('javascript').default(null),
-  _destroy: Joi.boolean().default(false)
 })
 
 const validateBeforeCreate = async (data) => {
@@ -48,8 +48,7 @@ const getDetails = async (orderId) => {
     const result = await GET_DB().collection(ORDER_COLLECTION_NAME).aggregate([
       {
         $match: {
-          _id: new ObjectId(orderId),
-          _destroy: false
+          _id: new ObjectId(orderId)
         }
       }
     ]).toArray()
@@ -278,13 +277,8 @@ const getAllOrdersPage = async (page, limit, filterOptions) => {
 }
 
 const deleteOrder = async (orderId) => {
-  await GET_DB().collection(ORDER_COLLECTION_NAME).updateOne(
-    { _id: new ObjectId(orderId) },
-    {
-      $set: {
-        _destroy: true
-      }
-    }
+  await GET_DB().collection(ORDER_COLLECTION_NAME).delete(
+    { _id: new ObjectId(orderId) }
   )
 }
 
