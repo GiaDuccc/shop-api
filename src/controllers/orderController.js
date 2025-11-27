@@ -32,53 +32,6 @@ const getDetails = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
-const addProduct = async (req, res, next) => {
-  try {
-    const orderId = req.params.id
-    const updateOrder = await orderService.addProduct(orderId, req.body)
-
-    res.status(StatusCodes.OK).json(updateOrder)
-  } catch (error) { next(error) }
-}
-
-const removeProduct = async (req, res, next) => {
-  try {
-    const orderId = req.params.id
-    const updateOrder = await orderService.removeProduct(orderId, req.body)
-
-    res.status(StatusCodes.OK).json(updateOrder)
-  } catch (error) { next(error) }
-}
-
-const increaseQuantity = async (req, res, next) => {
-  try {
-    const orderId = req.params.id
-    const { productId, color, size } = req.body
-    const updateOrder = await orderService.increaseQuantity(orderId, { productId, color, size })
-
-    res.status(StatusCodes.OK).json(updateOrder)
-  } catch (error) { next(error) }
-}
-
-const decreaseQuantity = async (req, res, next) => {
-  try {
-    const orderId = req.params.id
-    const { productId, color, size } = req.body
-    const updateOrder = await orderService.decreaseQuantity(orderId, { productId, color, size })
-
-    res.status(StatusCodes.OK).json(updateOrder)
-  } catch (error) { next(error) }
-}
-
-const addInformation = async (req, res, next) => {
-  try {
-    const orderId = req.params.id
-    const updateOrder = await orderService.addInformation(orderId, req.body)
-
-    res.status(StatusCodes.OK).json(updateOrder)
-  } catch (error) { next(error) }
-}
-
 const update = async (req, res, next) => {
   try {
     const orderId = req.params.id
@@ -127,19 +80,23 @@ const getOrderChartByYear = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const getCustomerOrders = async (req, res, next) => {
+  try {
+    const customerId = req.params.id
+    const orders = await orderModel.getCustomerOrders(customerId)
+    res.status(StatusCodes.OK).json(orders)
+  } catch (error) { next(error) }
+}
+
 export const orderController = {
   createNew,
   getAllOrdersPage,
   getDetails,
-  addProduct,
-  increaseQuantity,
-  decreaseQuantity,
-  removeProduct,
-  addInformation,
   update,
   deleteOrder,
   updateStatus,
   getQuantityAndProfit,
   getOrderChartByDay,
-  getOrderChartByYear
+  getOrderChartByYear,
+  getCustomerOrders
 }

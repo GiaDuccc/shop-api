@@ -4,7 +4,6 @@ import { productController } from '~/controllers/productController'
 import { productValidation } from '~/validations/productValidation'
 import multer from 'multer'
 import path from 'path'
-import fs from 'fs'
 import cloudinary from '~/utils/cloudinary'
 import { Readable } from 'stream'
 
@@ -32,10 +31,6 @@ const storage = multer.memoryStorage({
         productName
       )
     }
-
-    // fs.mkdirSync(folderPath, { recursive: true })
-
-    // cb(null, folderPath)
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + '-' + file.originalname)
@@ -126,6 +121,9 @@ Router.route('/')
   .get(productController.getAllProduct)
   .post(productValidation.createNew, productController.createNew)
 
+Router.route('/getAllProductsBrand')
+  .get(productController.getAllProductsBrand)
+
 Router.route('/sliderType')
   .get(productController.getLimitedProductsController)
 
@@ -143,6 +141,9 @@ Router.route('/topBestSeller')
 
 Router.route('/randomProductsWithBrand')
   .get(productController.getRandomProductsWithBrand)
+
+Router.route('/searchProducts')
+  .get(productController.searchProducts)
 
 Router.route('/:id')
   .get(productController.getDetails)

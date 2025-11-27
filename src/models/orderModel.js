@@ -10,12 +10,18 @@ const ORDER_COLLECTION_SCHEMA = Joi.object({
     Joi.object({
       productId: Joi.string().pattern(OBJECT_ID_RULE).message('Your string fails to match the productId pattern!').required(),
       quantity: Joi.number().min(1).default(1).required(),
-      price: Joi.number().min(0).required()
+      size: Joi.number().required(),
+      color: Joi.string().required()
     })
-  ).default([]),
-  totalPrice: Joi.number().min(0).default(0),
-  status: Joi.string().valid('cart', 'pending', 'delivering', 'completed', 'canceled').default('cart'),
-  createdAt: Joi.date().timestamp('javascript').default(null),
+  ).required().min(1),
+  totalPrice: Joi.number().min(0).required(),
+  payment: Joi.string().valid('COD', 'QR', 'eWallet', 'credit').required(),
+  address: Joi.string().min(5).required(),
+  phone: Joi.string().pattern(/^[0-9]{10,15}$/).required(),
+  name: Joi.string().min(2).required(),
+  status: Joi.string().valid('pending', 'delivering', 'completed', 'canceled').default('pending'),
+  createdAt: Joi.date().timestamp('javascript').default(new Date()),
+  updatedAt: Joi.date().timestamp('javascript').default(new Date())
 })
 
 const validateBeforeCreate = async (data) => {
@@ -26,7 +32,14 @@ const createNew = async (data) => {
   try {
     const validData = await validateBeforeCreate(data)
 
-    const createdOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).insertOne(validData)
+    const createdOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).insertOne({
+      ...validData,
+      customerId: new ObjectId(validData.customerId),
+      items: validData.items.map(item => ({
+        ...item,
+        productId: new ObjectId(item.productId)
+      }))
+    })
     return createdOrder
   } catch (error) {
     throw new Error(error)
@@ -57,133 +70,6 @@ const getDetails = async (orderId) => {
   } catch (error) { throw new Error(error) }
 }
 
-const addProduct = async (orderId, product) => {
-  const existProduct = await GET_DB().collection(ORDER_COLLECTION_NAME).findOne({
-    _id: new ObjectId(orderId),
-    items: {
-      $elemMatch: {
-        productId: new ObjectId(product.productId),
-        color: product.color,
-        size: product.size
-      }
-    }
-  })
-
-  let updateOrder
-
-  if (existProduct) {
-    updateOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).findOneAndUpdate(
-      {
-        _id: new ObjectId(orderId),
-        items: {
-          $elemMatch: {
-            productId: new ObjectId(product.productId),
-            color: product.color,
-            size: product.size
-          }
-        }
-      },
-      {
-        $inc: { 'items.$.quantity': 1 }
-      },
-      { returnDocument: 'after' }
-    )
-  }
-  else {
-    updateOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).findOneAndUpdate(
-      { _id: new ObjectId(orderId) },
-      {
-        $push: {
-          items: {
-            productId: new ObjectId(product.productId),
-            color: product.color,
-            size: product.size,
-            price: product.price,
-            name: product.name,
-            image: product.image,
-            quantity: 1
-          }
-        }
-      },
-      { returnDocument: 'after' }
-    )
-  }
-
-  return updateOrder
-}
-
-const removeProduct = async (orderId, product) => {
-  const updateOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).findOneAndUpdate(
-    { _id: new ObjectId(orderId) },
-    {
-      $pull: {
-        items: {
-          productId: new ObjectId(product.productId),
-          color: product.color,
-          size: product.size
-        }
-      }
-    },
-    { returnDocument: 'after' }
-  )
-  return updateOrder
-}
-
-const increaseQuantity = async (orderId, { productId, color, size }) => {
-  await GET_DB().collection(ORDER_COLLECTION_NAME).updateOne(
-    {
-      _id: new ObjectId(orderId),
-      items: {
-        $elemMatch: {
-          productId: new ObjectId(productId),
-          color: color,
-          size: size
-        }
-      }
-    },
-    {
-      $inc: { 'items.$.quantity': 1 }
-    }
-  )
-  const updatedOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).findOne({ _id: new ObjectId(orderId) })
-  return updatedOrder
-}
-
-const decreaseQuantity = async (orderId, { productId, color, size }) => {
-  await GET_DB().collection(ORDER_COLLECTION_NAME).updateOne(
-    {
-      _id: new ObjectId(orderId),
-      items: {
-        $elemMatch: {
-          productId: new ObjectId(productId),
-          color: color,
-          size: size
-        }
-      }
-    },
-    {
-      $inc: { 'items.$.quantity': -1 }
-    }
-  )
-  const updatedOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).findOne({ _id: new ObjectId(orderId) })
-  return updatedOrder
-}
-
-const addInformation = async (orderId, { name, phone, address }) => {
-  await GET_DB().collection(ORDER_COLLECTION_NAME).updateOne(
-    { _id: new ObjectId(orderId) },
-    {
-      $set: {
-        name,
-        phone,
-        address
-      }
-    }
-  )
-  const updatedOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).findOne({ _id: new ObjectId(orderId) })
-  return updatedOrder
-}
-
 const update = async (orderId, totalPrice, payment) => {
   await GET_DB().collection(ORDER_COLLECTION_NAME).updateOne(
     { _id: new ObjectId(orderId) },
@@ -210,7 +96,6 @@ const updateStatus = async (orderId, status) => {
       }
     }
   )
-  // const updatedOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).findOne({ _id: new ObjectId(orderId) })
   return 'update status success'
 }
 
@@ -423,21 +308,22 @@ const getOrderChartByYear = async (startOfYear, endOfYear) => {
   return result
 }
 
+const getCustomerOrders = async (customerId) => {
+  const orders = await GET_DB().collection(ORDER_COLLECTION_NAME).find({ customerId: new ObjectId(customerId) }).toArray()
+  return orders
+}
+
 
 export const orderModel = {
   createNew,
   findOneById,
   getDetails,
-  addProduct,
-  increaseQuantity,
-  decreaseQuantity,
-  removeProduct,
-  addInformation,
   update,
   getAllOrdersPage,
   deleteOrder,
   updateStatus,
   getQuantityAndProfit,
   getOrderChartByDay,
-  getOrderChartByYear
+  getOrderChartByYear,
+  getCustomerOrders
 }

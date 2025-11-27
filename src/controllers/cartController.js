@@ -36,6 +36,49 @@ const updateCart = async (req, res, next) => {
   try {
     const cartId = req.params.id
     const updateData = req.body
+    const updatedCart = await cartService.updateCart(cartId, updateData)
+    res.status(StatusCodes.OK).json(updatedCart)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const addProductToCart = async (req, res, next) => {
+  try {
+    const cartId = req.params.id
+    const productData = req.body
+    const updatedCart = await cartService.addProductToCart(cartId, productData)
+    res.status(StatusCodes.OK).json(updatedCart)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const removeProductFromCart = async (req, res, next) => {
+  try {
+    const cartId = req.params.id
+    const productId = req.body.productId
+    const updatedCart = await cartModel.removeProductFromCart(cartId, productId)
+    res.status(StatusCodes.OK).json(updatedCart)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const deleteCart = async (req, res, next) => {
+  try {
+    const cartId = req.params.id
+    await cartModel.deleteCart(cartId)
+    res.status(StatusCodes.NO_CONTENT).send()
+  } catch (error) {
+    next(error)
+  }
+}
+
+const updateCartAfterCheckout = async (req, res, next) => {
+  try {
+    const cartId = req.params.id
+    const updateData = req.body
     const updatedCart = await cartModel.updateCart(cartId, updateData)
     res.status(StatusCodes.OK).json(updatedCart)
   } catch (error) {
@@ -47,5 +90,9 @@ export const cartController = {
   getCartDetail,
   createNew,
   findCartByCustomerId,
-  updateCart
+  updateCart,
+  addProductToCart,
+  removeProductFromCart,
+  deleteCart,
+  updateCartAfterCheckout
 }

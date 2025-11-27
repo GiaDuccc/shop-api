@@ -52,8 +52,6 @@ const getAllProductPage = async (page, limit, filters) => {
   try {
     const products = await productModel.getAllProductPage(page, limit, filters)
 
-    // console.log(products)
-
     if ( !products ) throw new ApiError( StatusCodes.NOT_FOUND, 'Products not found')
     return products
   } catch (error) { throw error }

@@ -5,23 +5,63 @@ import { OBJECT_ID_RULE } from '~/utils/validators'
 
 const createNew = async (req, res, next) => {
   const correctCondition = Joi.object({
-    customerId: Joi.string().pattern(OBJECT_ID_RULE).required().message({
+    customerId: Joi.string().pattern(OBJECT_ID_RULE).required().messages({
       'any.required': 'customerId is required',
       'string.base': 'customerId must be a string',
       'string.pattern.base': 'customerId must be a valid ObjectId'
     }),
+
     items: Joi.array().items(
       Joi.object({
-        productId: Joi.string().pattern(OBJECT_ID_RULE).message({
+        productId: Joi.string().pattern(OBJECT_ID_RULE).required().messages({
           'any.required': 'productId is required',
           'string.base': 'productId must be a string',
           'string.pattern.base': 'productId must be a valid ObjectId'
-        }).required(),
+        }),
+        size: Joi.number().required().messages({
+          'any.required': 'size is required',
+          'string.base': 'size must be a string'
+        }),
         quantity: Joi.number().min(1).default(1).required(),
-        color: Joi.string().required(),
-        price: Joi.number().min(0).required()
+        color: Joi.string().required()
       })
-    ).default([])
+    ).required().min(1).messages({
+      'any.required': 'items is required',
+      'array.base': 'items must be an array',
+      'array.min': 'items must contain at least one item'
+    }),
+
+    status: Joi.string().valid('pending', 'delivering', 'completed', 'canceled').default('pending'),
+
+    totalPrice: Joi.number().min(0).required().messages({
+      'any.required': 'totalPrice is required',
+      'number.base': 'totalPrice must be a number',
+      'number.min': 'totalPrice must be at least 0'
+    }),
+
+    payment: Joi.string().valid('COD', 'QR', 'eWallet', 'credit').required().messages({
+      'any.required': 'payment is required',
+      'string.base': 'payment must be a string',
+      'any.only': 'payment must be one of COD, QR, eWallet, credit'
+    }),
+
+    address: Joi.string().min(5).required().messages({
+      'any.required': 'address is required',
+      'string.base': 'address must be a string',
+      'string.min': 'address must be at least 5 characters long'
+    }),
+
+    phone: Joi.string().pattern(/^[0-9]{10,15}$/).required().messages({
+      'any.required': 'phoneNumber is required',
+      'string.base': 'phoneNumber must be a string',
+      'string.pattern.base': 'phoneNumber must be a valid phone number with 10 to 15 digits'
+    }),
+
+    name: Joi.string().min(2).required().messages({
+      'any.required': 'Name is required',
+      'string.base': 'Name must be a string',
+      'string.min': 'Name must be at least 2 characters long'
+    })
   })
 
   try {
@@ -29,53 +69,10 @@ const createNew = async (req, res, next) => {
     next()
 
   } catch (error) {
-    const errorMessage = new Error(error).message
-
-    const customError = new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage)
-    next(customError)
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error))
   }
 }
 
-const addProduct = async (req, res, next) => {
-  const correctCondition = Joi.object({
-    productId: Joi.string().pattern(OBJECT_ID_RULE).message('Your string fails to match the productId pattern!').required(),
-    color: Joi.string().required(),
-    size: Joi.string().required(),
-    name: Joi.string().required(),
-    price: Joi.string().required(),
-    image: Joi.string().required()
-  })
-
-  try {
-    await correctCondition.validateAsync(req.body, { abortEarly: false })
-    next()
-
-  } catch (error) {
-    const errorMessage = new Error(error).message
-
-    const customError = new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage)
-    next(customError)
-  }
-}
-
-const addInformation = async (req, res, next) => {
-  const correctCondition = Joi.object({
-    name: Joi.string().min(1).max(256).required(),
-    phone: Joi.string().pattern(/^\+?[0-9]{10,15}$/).required(),
-    address: Joi.string().min(1).max(256).required()
-  })
-
-  try {
-    await correctCondition.validateAsync(req.body, { abortEarly: false })
-    next()
-
-  } catch (error) {
-    const errorMessage = new Error(error).message
-
-    const customError = new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage)
-    next(customError)
-  }
-}
 
 const updateStatus = async (req, res, next) => {
   const correctCondition = Joi.object({
@@ -94,7 +91,5 @@ const updateStatus = async (req, res, next) => {
 
 export const orderValidation = {
   createNew,
-  addProduct,
-  addInformation,
   updateStatus
 }

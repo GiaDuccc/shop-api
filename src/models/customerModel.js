@@ -40,8 +40,7 @@ const CUSTOMER_COLLECTION_SCHEMA = Joi.object({
   refreshToken: Joi.string().allow(null).default(null),
   isActive: Joi.boolean().default(true),
   createdAt: Joi.date().timestamp('javascript').default(new Date),
-  updatedAt: Joi.date().timestamp('javascript').default(null),
-  _destroy: Joi.boolean().default(false)
+  updatedAt: Joi.date().timestamp('javascript').default(null)
 })
 
 const validateBeforeCreate = async (data) => {

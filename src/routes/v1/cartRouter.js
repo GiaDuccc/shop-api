@@ -13,7 +13,17 @@ Router.route('/findCartByCustomerId/:id')
 Router.route('/updateCart/:id')
   .put(cartValidation.updateCart, cartController.updateCart)
 
+Router.route('/addProductToCart/:id')
+  .post(cartValidation.addProductToCart, cartController.addProductToCart)
+
+Router.route('/removeProductFromCart/:id')
+  .delete(cartController.removeProductFromCart)
+
+Router.route('/updateCartAfterCheckout/:id')
+  .put(cartValidation.updateCartAfterCheckout, cartController.updateCartAfterCheckout)
+
 Router.route('/:id')
   .get(cartController.getCartDetail)
+  .delete(cartController.deleteCart)
 
 export const cartRouter = Router

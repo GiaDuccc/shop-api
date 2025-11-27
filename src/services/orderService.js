@@ -3,11 +3,6 @@ import { orderModel } from '~/models/orderModel'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 
-// Hàm lấy ngẫu nhiên 4 chữ số
-// function getRandomDigits(str, length = 4) {
-//   return Array.from({ length }, () => str[Math.floor(Math.random() * str.length)]).join('')
-// }
-
 const createNew = async (reqBody) => {
   try {
     const createdOrder = await orderModel.createNew(reqBody)
@@ -39,40 +34,6 @@ const getDetails = async (orderId) => {
 
     return order
   } catch (error) { throw error }
-}
-
-const addProduct = async (orderId, product) => {
-  const updateOrder = await orderModel.addProduct(orderId, product)
-
-  return updateOrder
-}
-
-const removeProduct = async (orderId, reqBody) => {
-  const updateOrder = await orderModel.removeProduct(orderId, reqBody)
-
-  return updateOrder
-}
-
-const increaseQuantity = async (orderId, { productId, color, size }) => {
-
-  const updateOrder = await orderModel.increaseQuantity(orderId, { productId, color, size })
-
-  return updateOrder
-}
-
-const decreaseQuantity = async (orderId, { productId, color, size }) => {
-
-  const updateOrder = await orderModel.decreaseQuantity(orderId, { productId, color, size })
-
-  return updateOrder
-}
-
-const addInformation = async (orderId, reqBody) => {
-
-  const { name, phone, address } = reqBody
-  const updateOrder = await orderModel.addInformation(orderId, { name, phone, address })
-
-  return updateOrder
 }
 
 const update = async (orderId, totalPrice, payment) => {
@@ -119,11 +80,6 @@ export const orderService = {
   createNew,
   getDetails,
   getAllOrdersPage,
-  addProduct,
-  increaseQuantity,
-  decreaseQuantity,
-  removeProduct,
-  addInformation,
   update,
   deleteOrder,
   updateStatus,

@@ -8,14 +8,14 @@ const CART_COLLECTION_SCHEMA = Joi.object({
   customerId: Joi.string().pattern(OBJECT_ID_RULE).required(),
   items: Joi.array().items(
     Joi.object({
-      productId: Joi.string().pattern(OBJECT_ID_RULE).required(),
-      quantity: Joi.number().min(1).required(),
-      color: Joi.string().required(),
-      size: Joi.number().required()
+      productId: Joi.string().pattern(OBJECT_ID_RULE),
+      quantity: Joi.number().min(1),
+      color: Joi.string(),
+      size: Joi.number()
     })
-  ).required(),
-  totalPrice: Joi.number().min(0).required(),
-  createAt: Joi.date().default(new Date()),
+  ).default([]),
+  totalPrice: Joi.number().min(0).default(0),
+  createdAt: Joi.date().default(new Date()),
   updatedAt: Joi.date().default(new Date())
 })
 
@@ -24,8 +24,17 @@ const validateBeforeCreate = async (data) => {
 }
 
 const createNew = async (cartData) => {
-  await validateBeforeCreate(cartData)
-  const result = await GET_DB().collection(CART_COLLECTION_NAME).insertOne(cartData)
+  const validData = await validateBeforeCreate(cartData)
+
+  const existedCart = await GET_DB().collection(CART_COLLECTION_NAME).findOne({ customerId: validData.customerId })
+  if (existedCart) {
+    throw new Error('Cart for this customer already exists')
+  }
+
+  const result = await GET_DB().collection(CART_COLLECTION_NAME).insertOne({
+    ...validData,
+    customerId: new ObjectId(validData.customerId)
+  })
   return result
 }
 
@@ -34,7 +43,7 @@ const findOneById = async (cartId) => {
 }
 
 const findCartByCustomerId = async (customerId) => {
-  return await GET_DB().collection(CART_COLLECTION_NAME).findOne({ customerId: customerId })
+  return await GET_DB().collection(CART_COLLECTION_NAME).findOne({ customerId: new ObjectId(customerId) })
 }
 
 const updateCart = async (cartId, updateData) => {
@@ -54,10 +63,69 @@ const updateCart = async (cartId, updateData) => {
   return result
 }
 
+const addProductToCart = async (cartId, productData, price) => {
+  const productExisted = await GET_DB()
+    .collection(CART_COLLECTION_NAME)
+    .updateOne(
+      {
+        _id: new ObjectId(cartId),
+        'items.productId': productData.productId,
+        'items.color': productData.color,
+        'items.size': productData.size
+      },
+      {
+        $inc: {
+          'items.$.quantity': 1,
+          totalPrice: price
+        },
+        $set: { updatedAt: new Date() }
+      }
+    )
+
+  if (productExisted.modifiedCount === 0) {
+    await GET_DB()
+      .collection(CART_COLLECTION_NAME)
+      .updateOne(
+        {
+          _id: new ObjectId(cartId)
+        },
+        {
+          $push: {
+            items: {
+              ...productData,
+              quantity: 1
+            }
+          },
+          $inc: {
+            totalPrice: price
+          },
+          $set: {
+            updatedAt: new Date()
+          }
+        }
+      )
+  }
+}
+
+
+const removeProductFromCart = async (cartId, productId) => {
+  const result = await GET_DB().collection(CART_COLLECTION_NAME).updateOne(
+    { _id: new ObjectId(cartId) },
+    { $pull: { items: { productId: productId } }, $set: { updatedAt: new Date() } }
+  )
+  return result
+}
+
+const deleteCart = async (cartId) => {
+  await GET_DB().collection(CART_COLLECTION_NAME).deleteOne({ _id: new ObjectId(cartId) })
+}
 
 export const cartModel = {
   findOneById,
   createNew,
   findCartByCustomerId,
-  updateCart
+  updateCart,
+  addProductToCart,
+  removeProductFromCart,
+  deleteCart
 }

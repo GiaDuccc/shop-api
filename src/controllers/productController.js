@@ -117,6 +117,21 @@ const getRandomProductsWithBrand = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const getAllProductsBrand = async (req, res, next) => {
+  try {
+    const brands = await productModel.getAllProductsBrand()
+    res.status(StatusCodes.OK).json(brands)
+  } catch (error) { next(error) }
+}
+
+const searchProducts = async (req, res, next) => {
+  try {
+    const { keyword } = req.query
+    const products = await productModel.searchProducts(keyword)
+    res.status(StatusCodes.OK).json(products)
+  } catch (error) { next(error) }
+}
+
 export const productController = {
   createNew,
   getDetails,
@@ -129,5 +144,7 @@ export const productController = {
   getTopBestSeller,
   getLimitedProductsController,
   getTypeFromNavbar,
-  getRandomProductsWithBrand
+  getRandomProductsWithBrand,
+  getAllProductsBrand,
+  searchProducts
 }
