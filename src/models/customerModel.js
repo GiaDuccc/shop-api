@@ -139,21 +139,18 @@ const getAllCustomerPage = async (page, limit, filters) => {
   return result
 }
 
-const login = async (input) => {
-  // try {
+const signIn = async (username, password) => {
   const user = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({
     $or: [
-      { email: input.username },
-      { phone: input.username }
+      { email: username },
+      { phone: username }
     ]
   })
 
-  if (!user || !(await bcrypt.compare(input.password, user.password))) {
+  if (!user || !(await bcrypt.compare(password, user.password))) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid Email or Password.')
   }
-
   return user
-  // } catch (error) { throw error }
 }
 
 const getDetails = async (customerId) => {
@@ -161,12 +158,10 @@ const getDetails = async (customerId) => {
     const result = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).aggregate([
       {
         $match: {
-          _id: new ObjectId(customerId),
-          _destroy: false
+          _id: new ObjectId(customerId)
         }
       }
     ]).toArray()
-    // console.log(result)
     return result[0] || null
   } catch (error) {
     throw new Error(error)
@@ -206,32 +201,15 @@ const updateOrder = async (customerId, orderId, status) => {
 }
 
 const deleteCustomer = async (customerId) => {
-  await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOneAndUpdate(
-    { _id: new ObjectId(customerId) },
-    {
-      $set: {
-        _destroy: true
-      }
-    }
-  )
+  const result = await GET_DB()
+    .collection(CUSTOMER_COLLECTION_NAME)
+    .deleteOne({ _id: new ObjectId(customerId) })
 
-  return 'Delete successfull'
-}
+  if (result.deletedCount === 0) {
+    throw new Error('Customer not found')
+  }
 
-const changeRole = async (customerId, role) => {
-  await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOneAndUpdate(
-    {
-      _id: new ObjectId(customerId),
-      _destroy: false
-    },
-    {
-      $set: {
-        role: role
-      }
-    }
-  )
-
-  return 'Change role customer successfully'
+  return 'Delete successful'
 }
 
 const getAllCustomerQuantity = async () => {
@@ -369,11 +347,10 @@ export const customerModel = {
   findOneById,
   getAllCustomerPage,
   getDetails,
-  login,
+  signIn,
   addOrder,
   updateOrder,
   deleteCustomer,
-  changeRole,
   getAllCustomerQuantity,
   getCustomerChartByDay,
   getCustomerChartByYear,

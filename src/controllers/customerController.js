@@ -25,32 +25,6 @@ const getAllCustomerPage = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
-const login = async (req, res, next) => {
-  try {
-    const loginResult = await customerService.login(req.body)
-    res.status(StatusCodes.OK).json(loginResult)
-  } catch (error) { next(error) }
-}
-
-const logout = async (req, res, next) => {
-  try {
-    const result = await customerService.logout(req.user.userId)
-    res.status(StatusCodes.OK).json(result)
-  } catch (error) { next(error) }
-}
-
-const refreshToken = async (req, res, next) => {
-  try {
-    const { refreshToken } = req.body
-    if (!refreshToken) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Refresh token is required' })
-    }
-
-    const result = await customerService.refreshToken(refreshToken)
-    res.status(StatusCodes.OK).json(result)
-  } catch (error) { next(error) }
-}
-
 const getDetails = async (req, res, next) => {
   try {
     const customerId = req.params.id
@@ -63,44 +37,14 @@ const getDetails = async (req, res, next) => {
   }
 }
 
-const addOrder = async (req, res, next) => {
-  try {
-    const userId = req.params.id
-    const updateCustomer = await customerService.addOrder(userId, req.body)
-
-    res.status(StatusCodes.OK).json(updateCustomer)
-  } catch (error) { next(error) }
-}
-
-const updateOrder = async (req, res, next) => {
-  try {
-    const customerId = req.params.id
-    const { orderId, status } = req.body
-    const updateCustomer = await customerService.updateOrder(customerId, orderId, status)
-
-    res.status(StatusCodes.OK).json(updateCustomer)
-  } catch (error) { next(error) }
-}
-
 const deleteCustomer = async (req, res, next) => {
   try {
 
     const customerId = req.params.id
 
-    const deleteCustomer = await customerService.deleteCustomer(customerId)
+    const deleteCustomer = await customerModel.deleteCustomer(customerId)
 
     res.status(StatusCodes.OK).json(deleteCustomer)
-  } catch (error) { next(error) }
-}
-
-const changeRole = async (req, res, next) => {
-  try {
-    const customerId = req.params.id
-    const { role } = req.body
-
-    const updateCustomer = await customerService.changeRole(customerId, role)
-    res.status(StatusCodes.OK).json(updateCustomer)
-
   } catch (error) { next(error) }
 }
 
@@ -146,16 +90,9 @@ export const customerController = {
   createNew,
   getAllCustomerPage,
   getDetails,
-  login,
-  logout,
-  refreshToken,
-  addOrder,
-  updateOrder,
   deleteCustomer,
-  changeRole,
   getAllCustomerQuantity,
   getCustomerChartByDay,
-  // getCustomerChartByMonth,
   getCustomerChartByYear,
   updateCustomer
 }

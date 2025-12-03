@@ -1,9 +1,11 @@
 import express from 'express'
 import { cartController } from '~/controllers/cartController'
 import { cartValidation } from '~/validations/cartValidation'
+import { authenticateTokenClient } from '~/middlewares/authMiddleware'
 
 const Router = express.Router()
 
+Router.use(authenticateTokenClient)
 Router.route('/')
   .post(cartValidation.createNew, cartController.createNew)
 
