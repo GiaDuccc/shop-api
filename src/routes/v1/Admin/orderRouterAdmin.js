@@ -1,45 +1,36 @@
 import express from 'express'
 import { orderValidation } from '~/validations/orderValidation'
 import { orderController } from '~/controllers/orderController'
+import { authenticateTokenAdmin } from '~/middlewares/authMiddleware'
 
 const Router = express.Router()
 
+Router.use(authenticateTokenAdmin)
+
 Router.route('/')
   .get(orderController.getAllOrdersPage)
-  .post(orderValidation.createNew, orderController.createNew)
+  // .post(orderValidation.createNew, orderController.createNew)
 
 Router.route('/quantityAndProfit')
   .get(orderController.getQuantityAndProfit)
 
-Router.route('/orderChartByDay')
-  .get(orderController.getOrderChartByDay)
+// Router.route('/orderChartByDay')
+//   .get(orderController.getOrderChartByDay)
 
 Router.route('/orderAndProductSoldChartByYear')
   .get(orderController.getOrderChartByYear)
+
+Router.route('/getCustomerOrders/:id')
+  .get(orderController.getCustomerOrders)
 
 Router.route('/:id')
   .get(orderController.getDetails)
   .put(orderController.update) // update
 
-Router.route('/:id/add-product')
-  .put(orderValidation.addProduct, orderController.addProduct)
-
-Router.route('/:id/remove-product')
-  .put(orderController.removeProduct)
-
-Router.route('/:id/increase-quantity')
-  .put(orderController.increaseQuantity)
-
-Router.route('/:id/decrease-quantity')
-  .put(orderController.decreaseQuantity)
-
-Router.route('/:id/add-information')
-  .put(orderValidation.addInformation, orderController.addInformation)
-
 Router.route('/:id/delete')
-  .put(orderController.deleteOrder)
+  .delete(orderController.deleteOrder)
 
 Router.route('/:id/updateStatus')
   .put(orderValidation.updateStatus, orderController.updateStatus)
 
-export const orderRouter = Router
+export const orderRouterAdmin = Router

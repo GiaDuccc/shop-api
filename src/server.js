@@ -8,7 +8,7 @@ import { APIs_v1 } from './routes/v1'
 import cors from 'cors'
 import { errorHandlingMiddleware } from '~/middlewares/errorHandlingMiddleware'
 import path from 'path'
-
+import cookiesParser from 'cookie-parser'
 
 const START_SERVER = () => {
   const app = express()
@@ -17,6 +17,8 @@ const START_SERVER = () => {
 
   // Enable req.body json data
   app.use(express.json())
+
+  app.use(cookiesParser())
 
   // Xử lí CORS
   app.use(cors(corsOptions))

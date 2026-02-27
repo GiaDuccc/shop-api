@@ -4,11 +4,13 @@ import { productController } from '~/controllers/productController'
 import { productValidation } from '~/validations/productValidation'
 import multer from 'multer'
 import path from 'path'
-import fs from 'fs'
 import cloudinary from '~/utils/cloudinary'
 import { Readable } from 'stream'
+import { authenticateTokenAdmin } from '~/middlewares/authMiddleware'
 
 const Router = express.Router()
+
+Router.use(authenticateTokenAdmin)
 
 const storage = multer.memoryStorage({
   destination: function (req, file, cb) {
@@ -32,10 +34,6 @@ const storage = multer.memoryStorage({
         productName
       )
     }
-
-    // fs.mkdirSync(folderPath, { recursive: true })
-
-    // cb(null, folderPath)
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + '-' + file.originalname)
@@ -121,16 +119,9 @@ Router.post('/uploadArray', upload.array('files', 6), async (req, res) => {
   }
 })
 
-
 Router.route('/')
   .get(productController.getAllProduct)
   .post(productValidation.createNew, productController.createNew)
-
-Router.route('/sliderType')
-  .get(productController.getLimitedProductsController)
-
-Router.route('/typeAndNavbarImageFromBrand')
-  .get(productController.getTypeFromNavbar)
 
 Router.route('/filter')
   .get(productController.getAllProductPage)
@@ -144,11 +135,7 @@ Router.route('/topBestSeller')
 Router.route('/:id')
   .get(productController.getDetails)
   .put(productValidation.updateProduct, productController.updateProduct)
-Router.route('/:id/delete')
-  .put(productController.deleteProduct)
-
-Router.route('/:id/quantitySold')
-  .put(productController.updateQuantitySold)
+  .delete(productController.deleteProduct)
 
 
-export const productRouter = Router
+export const productRouterAdmin = Router

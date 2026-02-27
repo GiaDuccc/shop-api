@@ -52,16 +52,7 @@ const getAllProductPage = async (page, limit, filters) => {
   try {
     const products = await productModel.getAllProductPage(page, limit, filters)
 
-    // console.log(products)
-
     if ( !products ) throw new ApiError( StatusCodes.NOT_FOUND, 'Products not found')
-    return products
-  } catch (error) { throw error }
-}
-
-const deleteProduct = async (productId) => {
-  try {
-    const products = await productModel.deleteProduct(productId)
     return products
   } catch (error) { throw error }
 }
@@ -88,19 +79,10 @@ const updateProduct = async (id, properties) => {
   } catch (error) { throw error }
 }
 
-const getLimitedProducts = async (brand, type) => {
-  // Có thể xử lý logic gì đó tại đây nếu cần
-  const products = await productModel.getProductsByBrandAndType(brand, type)
-  return products
-}
-
-
 export const productService = {
   createNew,
   getDetails,
   getAllProduct,
   getAllProductPage,
-  deleteProduct,
-  updateProduct,
-  getLimitedProducts
+  updateProduct
 }

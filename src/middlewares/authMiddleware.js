@@ -2,28 +2,58 @@ import jwt from 'jsonwebtoken'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
 import { env } from '~/config/environment'
-const authenticateToken = (req, res, next) => {
+
+const authenticateTokenClient = (req, res, next) => {
+  const authHeader = req.headers.authorization
+  const token = authHeader && authHeader.split(' ')[1]
+
+  if (!token) {
+    return next(new ApiError(StatusCodes.UNAUTHORIZED, 'Access token client is missing'))
+  }
+
   try {
-    const authHeader = req.headers.authorization
-    const token = authHeader && authHeader.split(' ')[1] // Bearer TOKEN
-
-    if (!token) {
-      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Access token is required')
-    }
-
-    jwt.verify(token, env.JWT_SECRET, (err, decoded) => {
-      if (err) {
-        if (err.name === 'TokenExpiredError') {
-          throw new ApiError(StatusCodes.UNAUTHORIZED, 'Token has expired')
-        }
-        throw new ApiError(StatusCodes.FORBIDDEN, 'Invalid token')
+    const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET_CLIENT)
+    if (decoded && typeof decoded === 'object') {
+      const { sub, iat, exp } = decoded
+      if (!sub) {
+        return next(new ApiError(StatusCodes.FORBIDDEN, 'Invalid access token client payload'))
       }
+      req.user = { sub: String(sub), iat, exp }
+    }
+    console.log('validate token client successfully')
+    return next()
+  } catch (err) {
+    if (err?.name === 'TokenExpiredError') {
+      return next(new ApiError(StatusCodes.UNAUTHORIZED, 'Access token client has expired'))
+    }
+    return next(new ApiError(StatusCodes.FORBIDDEN, 'Invalid access token client'))
+  }
+}
 
-      req.user = decoded
-      next()
-    })
-  } catch (error) {
-    next(error)
+const authenticateTokenAdmin = (req, res, next) => {
+  const authHeader = req.headers.authorization
+  const token = authHeader && authHeader.split(' ')[1]
+
+  if (!token) {
+    return next(new ApiError(StatusCodes.UNAUTHORIZED, 'Access token admin is missing'))
+  }
+
+  try {
+    const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET_ADMIN)
+    if (decoded && typeof decoded === 'object') {
+      const { sub, iat, exp } = decoded
+      if (!sub) {
+        return next(new ApiError(StatusCodes.FORBIDDEN, 'Invalid access token admin payload'))
+      }
+      req.user = { sub: String(sub), iat, exp }
+    }
+    console.log('validate token admin successfully')
+    return next()
+  } catch (err) {
+    if (err?.name === 'TokenExpiredError') {
+      return next(new ApiError(StatusCodes.UNAUTHORIZED, 'Access token admin has expired'))
+    }
+    return next(new ApiError(StatusCodes.FORBIDDEN, 'Invalid access token admin'))
   }
 }
 
@@ -41,4 +71,4 @@ const authorizeRoles = (...roles) => {
   }
 }
 
-export { authenticateToken, authorizeRoles }
+export { authenticateTokenClient, authenticateTokenAdmin, authorizeRoles }

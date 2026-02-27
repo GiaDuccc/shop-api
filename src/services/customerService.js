@@ -121,29 +121,6 @@ const getDetails = async (customerId) => {
   } catch (error) { throw error }
 }
 
-const addOrder = async (userId, order) => {
-  const updateCustomer = await customerModel.addOrder(userId, order)
-
-  return updateCustomer
-}
-
-const updateOrder = async (customerId, orderId, status) => {
-  const updateCustomer = await customerModel.updateOrder(customerId, orderId, status)
-
-  return updateCustomer
-}
-
-const deleteCustomer = async (customerId) => {
-  const deleteCustomer = await customerModel.deleteCustomer(customerId)
-
-  return deleteCustomer
-}
-
-const changeRole = async (customerId, role) => {
-  const updateCustomer = await customerModel.changeRole(customerId, role)
-  return updateCustomer
-}
-
 const getCustomerChartByDay = async () => {
 
   const startOfToday = new Date()
@@ -173,10 +150,6 @@ export const customerService = {
   login,
   logout,
   refreshToken,
-  addOrder,
-  updateOrder,
-  deleteCustomer,
-  changeRole,
   getCustomerChartByDay,
   getCustomerChartByYear
 }

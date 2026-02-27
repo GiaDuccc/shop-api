@@ -33,9 +33,7 @@ const PRODUCT_COLLECTION_SCHEMA = Joi.object({
   ).min(1).required(),
   slug: Joi.string().required().min(3).trim().strict(),
   importAt: Joi.date().timestamp('javascript').default(new Date),
-  exportAt: Joi.date().timestamp('javascript').default(null),
-  updateAt: Joi.date().timestamp('javascript').default(null),
-  _destroy: Joi.boolean().default(false)
+  updateAt: Joi.date().timestamp('javascript').default(new Date)
 })
 
 const validateBeforeCreate = async (data) => {
@@ -47,8 +45,7 @@ const createNew = async (data) => {
     const validData = await validateBeforeCreate(data)
 
     const exist = await GET_DB().collection(PRODUCT_COLLECTION_NAME).findOne({
-      name: data.name,
-      _destroy: false
+      name: data.name
     })
 
     if (exist) {
@@ -75,15 +72,10 @@ const findOneById = async (id) => {
 const getDetails = async (id) => {
   try {
     // console.log('run Model')
-    const result = await GET_DB().collection(PRODUCT_COLLECTION_NAME).aggregate([
-      {
-        $match: {
-          _id: new ObjectId(id),
-          _destroy: false
-        }
-      }
-    ]).toArray()
-    return result[0] || null
+    const result = await GET_DB().collection(PRODUCT_COLLECTION_NAME).findOne({
+      _id: new ObjectId(id)
+    })
+    return result || null
   } catch (error) {
     throw new Error(error)
   }
@@ -91,9 +83,7 @@ const getDetails = async (id) => {
 
 const getAllProduct = async () => {
   try {
-    const result = await GET_DB().collection(PRODUCT_COLLECTION_NAME).aggregate([
-      { $match: { _destroy: false } }
-    ]).toArray()
+    const result = await GET_DB().collection(PRODUCT_COLLECTION_NAME).find({}).toArray()
 
     return result || null
   } catch (error) {
@@ -106,7 +96,7 @@ const getAllProductPage = async (page, limit, filterOptions) => {
     const skip = (page - 1) * limit
     const { sort, ...filters } = filterOptions
 
-    const matchConditions = { _destroy: false }
+    const matchConditions = {}
 
     Object.keys(filters).forEach(key => {
 
@@ -154,20 +144,20 @@ const getAllProductPage = async (page, limit, filterOptions) => {
     let sortOption = {}
 
     switch (sort) {
-      case 'newest':
-        sortOption = { importAt: -1 }
-        break
-      case 'oldest':
-        sortOption = { importAt: 1 }
-        break
-      case 'low-high':
-        sortOption = { price: 1 }
-        break
-      case 'high-low':
-        sortOption = { price: -1 }
-        break
-      default:
-        sortOption = {}
+    case 'newest':
+      sortOption = { importAt: -1 }
+      break
+    case 'oldest':
+      sortOption = { importAt: 1 }
+      break
+    case 'low-high':
+      sortOption = { price: 1 }
+      break
+    case 'high-low':
+      sortOption = { price: -1 }
+      break
+    default:
+      sortOption = {}
     }
 
     const allFilter = [
@@ -177,7 +167,7 @@ const getAllProductPage = async (page, limit, filterOptions) => {
     ]
 
     if (Object.keys(sortOption).length > 0) {
-      allFilter.push({ $sort: sortOption })
+      allFilter.splice(1, 0, { $sort: sortOption })
     }
 
     const result = await GET_DB().collection(PRODUCT_COLLECTION_NAME).aggregate(allFilter).toArray()
@@ -196,14 +186,10 @@ const getAllProductPage = async (page, limit, filterOptions) => {
   }
 }
 
+
 const deleteProduct = async (productId) => {
-  await GET_DB().collection(PRODUCT_COLLECTION_NAME).updateOne(
-    { _id: new ObjectId(productId) },
-    {
-      $set: {
-        _destroy: true
-      }
-    }
+  await GET_DB().collection(PRODUCT_COLLECTION_NAME).deleteOne(
+    { _id: new ObjectId(productId) }
   )
 }
 
@@ -245,26 +231,25 @@ const getTopBestSeller = async () => {
 }
 
 const getProductsByBrandAndType = async (brand, type) => {
-  if (type) {
-    return await GET_DB()
-      .collection(PRODUCT_COLLECTION_NAME)
-      .find({ brand: brand, type: type })
-      .limit(6)
-      .sort({ importAt: -1 })
-      .toArray()
-  }
+  const matchStage = type
+    ? { brand: brand, type: type }
+    : { brand: brand }
+
   return await GET_DB()
     .collection(PRODUCT_COLLECTION_NAME)
-    .find({ brand: brand })
-    .limit(6)
-    .sort({ importAt: -1 })
+    .aggregate([
+      { $match: matchStage },
+      { $sample: { size: 6 } }
+    ])
     .toArray()
 }
 
+
 const getTypeFromNavbar = async (brand) => {
   const typesAndNavbarImages = await GET_DB().collection(PRODUCT_COLLECTION_NAME).aggregate([
-    { $match: { brand: brand, _destroy: false } },
-    { $sort: { createdAt: -1 } }, // hoặc { _id: -1 } nếu không có createdAt
+    { $match: { brand: brand } },
+    // { $sort: { createdAt: -1 } }, // hoặc { _id: -1 } nếu không có createdAt
+    { $sample: { size: 1000000 } },
     {
       $group: {
         _id: '$type',
@@ -283,6 +268,36 @@ const getTypeFromNavbar = async (brand) => {
   return typesAndNavbarImages
 }
 
+const getRandomProductsWithBrand = async (brand) => {
+  const products = await GET_DB().collection(PRODUCT_COLLECTION_NAME)
+    .aggregate([
+      { $match: { brand: brand } },
+      { $sample: { size: 6 } }
+    ])
+    .toArray()
+
+  return products
+}
+
+const getAllProductsBrand = async () => {
+  const brands = await GET_DB().collection(PRODUCT_COLLECTION_NAME).aggregate([
+    {
+      $group: {
+        _id: null,
+        brands: { $addToSet: '$brand' }
+      }
+    }
+  ]).toArray()
+  return brands[0].brands || []
+}
+
+const searchProducts = async (keyword) => {
+  const result = await GET_DB().collection(PRODUCT_COLLECTION_NAME).find({
+    name: { $regex: keyword, $options: 'i' }
+  }).toArray()
+  return result || []
+}
+
 export const productModel = {
   createNew,
   getDetails,
@@ -295,5 +310,8 @@ export const productModel = {
   getAllProductQuantity,
   getTopBestSeller,
   getProductsByBrandAndType,
-  getTypeFromNavbar
+  getTypeFromNavbar,
+  getRandomProductsWithBrand,
+  getAllProductsBrand,
+  searchProducts
 }

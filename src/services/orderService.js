@@ -2,11 +2,7 @@
 import { orderModel } from '~/models/orderModel'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/utils/ApiError'
-
-// Hàm lấy ngẫu nhiên 4 chữ số
-// function getRandomDigits(str, length = 4) {
-//   return Array.from({ length }, () => str[Math.floor(Math.random() * str.length)]).join('')
-// }
+import { Resend } from 'resend'
 
 const createNew = async (reqBody) => {
   try {
@@ -41,40 +37,6 @@ const getDetails = async (orderId) => {
   } catch (error) { throw error }
 }
 
-const addProduct = async (orderId, product) => {
-  const updateOrder = await orderModel.addProduct(orderId, product)
-
-  return updateOrder
-}
-
-const removeProduct = async (orderId, reqBody) => {
-  const updateOrder = await orderModel.removeProduct(orderId, reqBody)
-
-  return updateOrder
-}
-
-const increaseQuantity = async (orderId, { productId, color, size }) => {
-
-  const updateOrder = await orderModel.increaseQuantity(orderId, { productId, color, size })
-
-  return updateOrder
-}
-
-const decreaseQuantity = async (orderId, { productId, color, size }) => {
-
-  const updateOrder = await orderModel.decreaseQuantity(orderId, { productId, color, size })
-
-  return updateOrder
-}
-
-const addInformation = async (orderId, reqBody) => {
-
-  const { name, phone, address } = reqBody
-  const updateOrder = await orderModel.addInformation(orderId, { name, phone, address })
-
-  return updateOrder
-}
-
 const update = async (orderId, totalPrice, payment) => {
   const updateOrder = await orderModel.update(orderId, totalPrice, payment)
 
@@ -83,12 +45,6 @@ const update = async (orderId, totalPrice, payment) => {
 
 const updateStatus = async (orderId, status) => {
   const updateOrder = await orderModel.updateStatus(orderId, status)
-
-  return updateOrder
-}
-
-const deleteOrder = async (orderId) => {
-  const updateOrder = await orderModel.deleteOrder(orderId)
 
   return updateOrder
 }
@@ -115,18 +71,85 @@ const getOrderChartByYear = async () => {
   return orderChart
 }
 
+const sendEmail = async (emailData) => {
+  console.log(emailData)
+  const { toEmail, orderId, name, phone, address, payment, totalPrice, itemNumber } = emailData
+  const resend = new Resend(process.env.RESEND_API_KEY)
+
+  const response = await resend.emails.send({
+    from: 'Nice Store <NiceStore@giaduccc.works>',
+    to: toEmail,
+    subject: 'Order Success!',
+    html: `
+  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;
+              padding: 20px; border: 1px solid #e5e5e5; border-radius: 8px;
+              background: #fafafa;">
+    
+    <h2 style="text-align: center; color: #2c3e50;">🎉 Order Placed Successfully!</h2>
+
+    <p style="font-size: 15px; color: #333;">
+      Hello <b>${name}</b>,
+    </p>
+
+    <p style="font-size: 15px; color: #333;">
+      Thank you for shopping with us! Your order has been placed successfully.
+    </p>
+
+    <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;" />
+
+    <h3 style="color: #2c3e50;">📦 Order Information</h3>
+
+    <p style="font-size: 15px; color: #333;">
+      <b>Order ID:</b> ${orderId}
+    </p>
+
+    <p style="font-size: 15px; color: #333;">
+      <b>Items:</b> ${itemNumber} item(s)
+    </p>
+
+    <p style="font-size: 15px; color: #333;">
+      <b>Total Price:</b> ${totalPrice} VND
+    </p>
+
+    <p style="font-size: 15px; color: #333;">
+      <b>Payment Method:</b> ${payment}
+    </p>
+
+    <h3 style="color: #2c3e50; margin-top: 25px;">👤 Customer Information</h3>
+
+    <p style="font-size: 15px; color: #333;">
+      <b>Name:</b> ${name}
+    </p>
+
+    <p style="font-size: 15px; color: #333;">
+      <b>Phone:</b> ${phone}
+    </p>
+
+    <p style="font-size: 15px; color: #333;">
+      <b>Address:</b> ${address}
+    </p>
+
+    <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;" />
+
+    <p style="font-size: 14px; color: #555; text-align: center;">
+      If you have any questions, feel free to reply to this email.
+      <br />Thank you for choosing our store! ❤️
+    </p>
+
+  </div>
+`
+  })
+
+  console.log('thanh cong', response)
+}
+
 export const orderService = {
   createNew,
   getDetails,
   getAllOrdersPage,
-  addProduct,
-  increaseQuantity,
-  decreaseQuantity,
-  removeProduct,
-  addInformation,
   update,
-  deleteOrder,
   updateStatus,
   getOrderChartByDay,
-  getOrderChartByYear
+  getOrderChartByYear,
+  sendEmail
 }

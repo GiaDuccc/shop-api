@@ -53,7 +53,7 @@ const getAllProductPage = async (req, res, next) => {
 const deleteProduct = async (req, res, next) => {
   try {
     const productId = req.params.id
-    const updateProduct = await productService.deleteProduct(productId)
+    const updateProduct = await productModel.deleteProduct(productId)
     res.status(StatusCodes.OK).json(updateProduct)
   } catch (error) {
     next(error)
@@ -96,7 +96,7 @@ const getTopBestSeller = async (req, res, next) => {
 const getLimitedProductsController = async (req, res, next) => {
   const { brand, type } = req.query
   try {
-    const products = await productService.getLimitedProducts(brand, type)
+    const products = await productModel.getProductsByBrandAndType(brand, type)
     res.status(StatusCodes.OK).json(products)
   } catch (error) { next(error) }
 }
@@ -106,6 +106,29 @@ const getTypeFromNavbar = async (req, res, next) => {
   try {
     const types = await productModel.getTypeFromNavbar(brand)
     res.status(StatusCodes.OK).json(types)
+  } catch (error) { next(error) }
+}
+
+const getRandomProductsWithBrand = async (req, res, next) => {
+  const { brand } = req.query
+  try {
+    const products = await productModel.getRandomProductsWithBrand(brand)
+    res.status(StatusCodes.OK).json(products)
+  } catch (error) { next(error) }
+}
+
+const getAllProductsBrand = async (req, res, next) => {
+  try {
+    const brands = await productModel.getAllProductsBrand()
+    res.status(StatusCodes.OK).json(brands)
+  } catch (error) { next(error) }
+}
+
+const searchProducts = async (req, res, next) => {
+  try {
+    const { keyword } = req.query
+    const products = await productModel.searchProducts(keyword)
+    res.status(StatusCodes.OK).json(products)
   } catch (error) { next(error) }
 }
 
@@ -120,5 +143,8 @@ export const productController = {
   getAllProductQuantity,
   getTopBestSeller,
   getLimitedProductsController,
-  getTypeFromNavbar
+  getTypeFromNavbar,
+  getRandomProductsWithBrand,
+  getAllProductsBrand,
+  searchProducts
 }

@@ -40,8 +40,7 @@ const CUSTOMER_COLLECTION_SCHEMA = Joi.object({
   refreshToken: Joi.string().allow(null).default(null),
   isActive: Joi.boolean().default(true),
   createdAt: Joi.date().timestamp('javascript').default(new Date),
-  updatedAt: Joi.date().timestamp('javascript').default(null),
-  _destroy: Joi.boolean().default(false)
+  updatedAt: Joi.date().timestamp('javascript').default(null)
 })
 
 const validateBeforeCreate = async (data) => {
@@ -61,9 +60,9 @@ const createNew = async (data) => {
   try {
     const validData = await validateBeforeCreate(data)
 
-    const existEmail = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ email: data.email, _destroy: false })
+    const existEmail = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ email: data.email })
 
-    const existPhone = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ phone: data.phone, _destroy: false })
+    const existPhone = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ phone: data.phone })
 
     if (existEmail || existPhone) {
       const errors = {}
@@ -103,9 +102,7 @@ const getAllCustomerPage = async (page, limit, filters) => {
     sortOption = {}
   }
 
-  const matchConditions = {
-    _destroy: false // not equal
-  }
+  const matchConditions = {}
 
   if (search) {
     const orConditions = []
@@ -128,9 +125,7 @@ const getAllCustomerPage = async (page, limit, filters) => {
   ]
 
   const allCustomer = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).aggregate(allFilter).toArray()
-  const total = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).countDocuments({
-    _destroy: false
-  })
+  const total = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).countDocuments({})
 
   const result = {
     customers: allCustomer,
@@ -140,21 +135,18 @@ const getAllCustomerPage = async (page, limit, filters) => {
   return result
 }
 
-const login = async (input) => {
-  // try {
+const signIn = async (username, password) => {
   const user = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({
     $or: [
-      { email: input.username },
-      { phone: input.username }
+      { email: username },
+      { phone: username }
     ]
   })
 
-  if (!user || !(await bcrypt.compare(input.password, user.password))) {
+  if (!user || !(await bcrypt.compare(password, user.password))) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid Email or Password.')
   }
-
   return user
-  // } catch (error) { throw error }
 }
 
 const getDetails = async (customerId) => {
@@ -162,12 +154,10 @@ const getDetails = async (customerId) => {
     const result = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).aggregate([
       {
         $match: {
-          _id: new ObjectId(customerId),
-          _destroy: false
+          _id: new ObjectId(customerId)
         }
       }
     ]).toArray()
-    // console.log(result)
     return result[0] || null
   } catch (error) {
     throw new Error(error)
@@ -207,32 +197,14 @@ const updateOrder = async (customerId, orderId, status) => {
 }
 
 const deleteCustomer = async (customerId) => {
-  await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOneAndUpdate(
-    { _id: new ObjectId(customerId) },
-    {
-      $set: {
-        _destroy: true
-      }
-    }
-  )
+  const result = await GET_DB()
+    .collection(CUSTOMER_COLLECTION_NAME)
+    .deleteOne({ _id: new ObjectId(customerId) })
 
-  return 'Delete successfull'
-}
-
-const changeRole = async (customerId, role) => {
-  await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOneAndUpdate(
-    {
-      _id: new ObjectId(customerId),
-      _destroy: false
-    },
-    {
-      $set: {
-        role: role
-      }
-    }
-  )
-
-  return 'Change role customer successfully'
+  if (result.deletedCount === 0) {
+    throw new Error('Customer not found')
+  }
+  return 'Delete successful'
 }
 
 const getAllCustomerQuantity = async () => {
@@ -322,9 +294,9 @@ const getCustomerChartByYear = async (startOfYear, endOfYear) => {
 }
 
 const updateCustomer = async (customerId, properties) => {
-  const existEmail = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ email: properties.email, _destroy: false })
+  const existEmail = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ email: properties.email })
 
-  const existPhone = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ phone: properties.phone, _destroy: false })
+  const existPhone = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ phone: properties.phone })
 
   if (existEmail || existPhone) {
     const errors = {}
@@ -337,8 +309,7 @@ const updateCustomer = async (customerId, properties) => {
 
   await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOneAndUpdate(
     {
-      _id: new ObjectId(customerId),
-      _destroy: false
+      _id: new ObjectId(customerId)
     },
     {
       $set: properties
@@ -370,11 +341,10 @@ export const customerModel = {
   findOneById,
   getAllCustomerPage,
   getDetails,
-  login,
+  signIn,
   addOrder,
   updateOrder,
   deleteCustomer,
-  changeRole,
   getAllCustomerQuantity,
   getCustomerChartByDay,
   getCustomerChartByYear,
