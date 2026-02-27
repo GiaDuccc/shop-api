@@ -33,17 +33,17 @@ const verifyRefreshTokenClient = (token) => {
 
 const generateAccessTokenAdmin = (employee) => {
   return jwt.sign(
-    { sub: employee.employeeId, branchId: employee.branchId, role: employee.role },
+    { sub: employee._id, role: employee.role },
     ACCESS_TOKEN_SECRET_ADMIN,
-    { expiresIn: '15m' }
+    { expiresIn: '1m' }
   )
 }
 
 const generateRefreshTokenAdmin = (employee) => {
   return jwt.sign(
-    { sub: employee.employeeId, branchId: employee.branchId, role: employee.role },
+    { sub: employee._id, role: employee.role },
     REFRESH_TOKEN_SECRET_ADMIN,
-    { expiresIn: '6h' }
+    { expiresIn: '1h' }
   )
 }
 

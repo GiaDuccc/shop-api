@@ -19,6 +19,7 @@
       * [2.3. Product Management](#23-product-management)
       * [2.4. Order Management](#24-order-management)
 
+* [**Authentication & Security**](#authentication--security)
 * [**Database**](#database)
 
 * [**Installation**](#installation)
@@ -35,6 +36,8 @@
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
 ![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
 ![Multer](https://img.shields.io/badge/Multer-ff4444?style=for-the-badge&logo=npm&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
+![Bcrypt](https://img.shields.io/badge/Bcrypt-003A70?style=for-the-badge&logo=letsencrypt&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 ![Yarn](https://img.shields.io/badge/Yarn-2C8EBB?style=for-the-badge&logo=yarn&logoColor=white)
 
@@ -102,17 +105,62 @@
 - User activity tracking
 - Account status management
 
-### 2.3. Product Management
+### 2.3. Employee Management
+- Employee account creation and management
+- Role and permission assignment
+- Employee activity tracking
+- Access control management
+
+### 2.4. Product Management
 - CRUD operations for products
 - Inventory management
 - Product categorization
 - Image upload and management
 
-### 2.4. Order Management
+### 2.5. Order Management
 - Order status updates
 - Order tracking
 - Customer communication
 - Payment verification
+
+# Authentication & Security
+
+### JWT (JSON Web Tokens)
+The API uses JWT for secure authentication and authorization:
+
+- **Token Generation**: Upon successful login, the server generates a JWT containing user information (user ID, role, email)
+- **Token Structure**: Tokens include payload data and are signed with a secret key
+- **Token Expiration**: Configurable expiration time for security
+- **Token Storage**: Tokens are stored in HTTP-only cookies for enhanced security
+
+### Security Features
+
+**Password Hashing**
+- User passwords are hashed using bcrypt before storage
+- Salt rounds are configured for optimal security
+- Passwords are never stored or transmitted in plain text
+
+**Role-Based Access Control (RBAC)**
+- Three user roles: Client, Admin, Manager
+- Route protection based on user roles
+- Separate admin and client API endpoints
+- Middleware validation for protected routes
+
+**API Security**
+- CORS configuration for controlled access
+- Rate limiting to prevent abuse
+- Input validation using Joi
+- Error handling middleware for consistent responses
+- Soft delete mechanism to preserve data integrity
+
+**Authentication Flow**
+1. User sends credentials (email/password) to `/auth/login`
+2. Server validates credentials and checks user status
+3. If valid, server generates JWT token
+4. Token is sent to client via HTTP-only cookie
+5. Client includes token in subsequent requests
+6. Middleware verifies token on protected routes
+7. User data is extracted from valid tokens for authorization
 
 # Database
 
@@ -144,7 +192,47 @@ Below are the main collections in MongoDB:
 ------------------------------------------------------------------------------------------
 ```
 
-## 2. products
+## 2. employees
+```
+------------------------------------------------------------------------------------------
+| Field        | Type      | Description                                                 |
+|--------------|-----------| ------------------------------------------------------------|
+| _id          | ObjectId  | Primary key                                                 |
+| lastName     | String    | Employee's last name                                        |
+| firstName    | String    | Employee's first name                                       |
+| email        | String    | Email address                                               |
+| phone        | String    | Phone number                                                |
+| password     | String    | Hashed password                                             |
+| role         | String    | Employee role (admin/manager)                               |
+| isActive     | Boolean   | Account active status                                       |
+| createdAt    | Date      | Creation timestamp                                          |
+| updatedAt    | Date      | Last update timestamp                                       |
+| _destroy     | Boolean   | Soft delete flag                                            |
+------------------------------------------------------------------------------------------
+```
+
+## 3. carts
+```
+------------------------------------------------------------------------------------------
+| Field        | Type      | Description                                                 |
+|--------------|-----------| ------------------------------------------------------------|
+| _id          | ObjectId  | Primary key                                                 |
+| customerId   | ObjectId  | Reference to customer                                       |
+| items        | Array     | List of cart items:                                         |
+|  └─ productId| ObjectId  | Reference to product                                        |
+|  └─ color    | String    | Color of the product                                        |
+|  └─ size     | Number    | Size of the product                                         |
+|  └─ quantity | Number    | Quantity in cart                                            |
+|  └─ price    | Number    | Price per item                                              |
+|  └─ name     | String    | Product name                                                |
+|  └─ image    | String    | Product image URL                                           |
+| createdAt    | Date      | Creation timestamp                                          |
+| updatedAt    | Date      | Last update timestamp                                       |
+| _destroy     | Boolean   | Soft delete flag                                            |
+------------------------------------------------------------------------------------------
+```
+
+## 4. products
 ```
 -----------------------------------------------------------------------------
 | Field           | Type      | Description                                 |
@@ -175,7 +263,7 @@ Below are the main collections in MongoDB:
 -----------------------------------------------------------------------------
 ```
 
-## 3. orders
+## 5. orders
 ```
 --------------------------------------------------------------------------
 | Field        | Type      | Description                                 |
@@ -251,25 +339,90 @@ The API documentation is available at `/api-docs` when running the server locall
 
 ```
 shop-api/
+├── node_modules/
+│
 ├── src/
 │   ├── config/
-│   │   └── (Configuration files)
+│   │   ├── cors.js
+│   │   ├── environment.js
+│   │   └── mongodb.js
+│   │
 │   ├── controllers/
-│   │   └── (Route controllers)
+│   │   ├── authController.js
+│   │   ├── cartController.js
+│   │   ├── chatbotController.js
+│   │   ├── customerController.js
+│   │   ├── employeeController.js
+│   │   ├── orderController.js
+│   │   └── productController.js
+│   │
 │   ├── middlewares/
-│   │   └── (Custom middlewares)
+│   │   └── errorHandlingMiddleware.js
+│   │
 │   ├── models/
-│   │   └── (Database models)
+│   │   ├── cartModel.js
+│   │   ├── chatbotModel.js
+│   │   ├── customerModel.js
+│   │   ├── employeeModel.js
+│   │   ├── orderModel.js
+│   │   └── productModel.js
+│   │
 │   ├── routes/
-│   │   └── (API routes)
+│   │   ├── v1/
+│   │   │   ├── Admin/
+│   │   │   │   ├── authRouterAdmin.js
+│   │   │   │   ├── customerRouterAdmin.js
+│   │   │   │   ├── employeeRouterAdmin.js
+│   │   │   │   ├── orderRouterAdmin.js
+│   │   │   │   └── productRouterAdmin.js
+│   │   │   │
+│   │   │   ├── Client/
+│   │   │   │   ├── authRouter.js
+│   │   │   │   ├── cartRouter.js
+│   │   │   │   ├── chatbotRouter.js
+│   │   │   │   ├── customerRouter.js
+│   │   │   │   ├── orderRouter.js
+│   │   │   │   └── productRouter.js
+│   │   │   │
+│   │   │   └── index.js
+│   │   │
+│   │   └── v2/
+│   │       └── (Future API versions)
+│   │
 │   ├── services/
-│   │   └── (Business logic)
+│   │   ├── authService.js
+│   │   ├── cartService.js
+│   │   ├── chatbotService.js
+│   │   ├── customerService.js
+│   │   ├── employeeService.js
+│   │   ├── orderService.js
+│   │   └── productService.js
+│   │
 │   ├── utils/
-│   │   └── (Utility functions)
-│   └── app.js
+│   │   ├── algorithms.js
+│   │   ├── ApiError.js
+│   │   ├── cloudinary.js
+│   │   ├── constants.js
+│   │   ├── formatters.js
+│   │   ├── sorts.js
+│   │   ├── token.js
+│   │   └── validators.js
+│   │
+│   ├── validations/
+│   │   ├── cartValidation.js
+│   │   ├── customerValidation.js
+│   │   ├── employeeValidation.js
+│   │   ├── orderValidation.js
+│   │   └── productValidation.js
+│   │
+│   └── server.js
+│
+├── .babelrc
 ├── .env
 ├── .eslintrc.cjs
 ├── .gitignore
+├── jsconfig.json
 ├── package.json
-└── README.md
+├── README.md
+└── yarn.lock
 ```

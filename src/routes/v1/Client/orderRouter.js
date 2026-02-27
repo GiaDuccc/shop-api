@@ -6,19 +6,12 @@ import { authenticateTokenClient } from '~/middlewares/authMiddleware'
 const Router = express.Router()
 
 Router.route('/')
-  // .get(orderController.getAllOrdersPage)
   .post(orderValidation.createNew, orderController.createNew)
 
 Router.use(authenticateTokenClient)
 
-// Router.route('/quantityAndProfit')
-//   .get(orderController.getQuantityAndProfit)
-
-// Router.route('/orderChartByDay')
-//   .get(orderController.getOrderChartByDay)
-
-// Router.route('/orderAndProductSoldChartByYear')
-//   .get(orderController.getOrderChartByYear)
+Router.route('/sendEmail')
+  .post(orderController.sendEmail)
 
 Router.route('/getCustomerOrders/:id')
   .get(orderController.getCustomerOrders)
@@ -26,11 +19,5 @@ Router.route('/getCustomerOrders/:id')
 Router.route('/:id')
   .get(orderController.getDetails)
   .put(orderController.update) // update
-
-// Router.route('/:id/delete')
-//   .put(orderController.deleteOrder)
-
-// Router.route('/:id/updateStatus')
-//   .put(orderValidation.updateStatus, orderController.updateStatus)
 
 export const orderRouter = Router

@@ -123,10 +123,7 @@ const getAllOrdersPage = async (page, limit, filterOptions) => {
       sortOption = {}
     }
 
-    const matchConditions = {
-      status: { $ne: 'cart' },
-      _destroy: false // not equal
-    }
+    const matchConditions = {}
 
     if (search) {
       const orConditions = []

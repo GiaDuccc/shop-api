@@ -45,7 +45,7 @@ const update = async (req, res, next) => {
 const deleteOrder = async (req, res, next) => {
   try {
     const orderId = req.params.id
-    const updateOrder = await orderService.deleteOrder(orderId)
+    const updateOrder = await orderModel.deleteOrder(orderId)
     res.status(StatusCodes.OK).json(updateOrder)
   } catch (error) { next(error) }
 }
@@ -88,6 +88,15 @@ const getCustomerOrders = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const sendEmail = async (req, res, next) => {
+  try {
+    await orderService.sendEmail(req.body)
+    res.status(StatusCodes.OK).json('Email sent successfully')
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const orderController = {
   createNew,
   getAllOrdersPage,
@@ -98,5 +107,6 @@ export const orderController = {
   getQuantityAndProfit,
   getOrderChartByDay,
   getOrderChartByYear,
-  getCustomerOrders
+  getCustomerOrders,
+  sendEmail
 }

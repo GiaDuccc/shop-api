@@ -6,153 +6,136 @@ import multer from 'multer'
 import path from 'path'
 import cloudinary from '~/utils/cloudinary'
 import { Readable } from 'stream'
-import { authenticateTokenClient } from '~/middlewares/authMiddleware'
+import { authenticateTokenAdmin } from '~/middlewares/authMiddleware'
 
 const Router = express.Router()
 
-// const storage = multer.memoryStorage({
-//   destination: function (req, file, cb) {
-//     // Lấy từ query thay vì body vì body chưa parse khi multer gọi destination
-//     const productName = req.query.productName
-//     const productColor = req.query.productColor
+Router.use(authenticateTokenAdmin)
 
-//     let folderPath
+const storage = multer.memoryStorage({
+  destination: function (req, file, cb) {
+    // Lấy từ query thay vì body vì body chưa parse khi multer gọi destination
+    const productName = req.query.productName
+    const productColor = req.query.productColor
 
-//     if (productColor) {
-//       folderPath = path.join(
-//         __dirname,
-//         '../../../allProduct',
-//         productName,
-//         `${productName}-${productColor}`
-//       )
-//     } else {
-//       folderPath = path.join(
-//         __dirname,
-//         '../../../allProduct',
-//         productName
-//       )
-//     }
-//   },
-//   filename: function (req, file, cb) {
-//     cb(null, Date.now() + '-' + file.originalname)
-//   }
-// })
+    let folderPath
 
-// const upload = multer({
-//   storage: storage,
-//   fileFilter: function (req, file, cb) {
-//     // Kiểm tra mime type file xem có phải ảnh không
-//     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif']
+    if (productColor) {
+      folderPath = path.join(
+        __dirname,
+        '../../../allProduct',
+        productName,
+        `${productName}-${productColor}`
+      )
+    } else {
+      folderPath = path.join(
+        __dirname,
+        '../../../allProduct',
+        productName
+      )
+    }
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname)
+  }
+})
 
-//     if (allowedTypes.includes(file.mimetype)) {
-//       cb(null, true) // Chấp nhận file
-//     } else {
-//       cb(new Error('Chỉ chấp nhận file ảnh (jpg, png, gif, webp, avif)'))
-//     }
-//   }
-// })
+const upload = multer({
+  storage: storage,
+  fileFilter: function (req, file, cb) {
+    // Kiểm tra mime type file xem có phải ảnh không
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif']
 
-// const uploadToCloudinary = (buffer, folder, filename) => {
-//   return new Promise((resolve, reject) => {
-//     const stream = cloudinary.uploader.upload_stream(
-//       {
-//         folder: folder,
-//         public_id: filename, // không có đuôi mở rộng
-//         resource_type: 'image'
-//       },
-//       (error, result) => {
-//         if (error) return reject(error)
-//         resolve(result)
-//       }
-//     )
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true) // Chấp nhận file
+    } else {
+      cb(new Error('Chỉ chấp nhận file ảnh (jpg, png, gif, webp, avif)'))
+    }
+  }
+})
 
-//     Readable.from(buffer).pipe(stream)
-//   })
-// }
+const uploadToCloudinary = (buffer, folder, filename) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: folder,
+        public_id: filename, // không có đuôi mở rộng
+        resource_type: 'image'
+      },
+      (error, result) => {
+        if (error) return reject(error)
+        resolve(result)
+      }
+    )
 
-// Router.post('/uploadSingle', upload.single('file'), async (req, res) => {
-//   try {
-//     const { productName, productColor } = req.query
+    Readable.from(buffer).pipe(stream)
+  })
+}
 
-//     if (!req.file) return res.status(400).json({ message: 'No file uploaded' })
+Router.post('/uploadSingle', upload.single('file'), async (req, res) => {
+  try {
+    const { productName, productColor } = req.query
 
-//     const folder = productColor
-//       ? `products/${productName}/${productName}-${productColor}`
-//       : `products/${productName}`
+    if (!req.file) return res.status(400).json({ message: 'No file uploaded' })
 
-//     const result = await uploadToCloudinary(req.file.buffer, folder, Date.now().toString())
+    const folder = productColor
+      ? `products/${productName}/${productName}-${productColor}`
+      : `products/${productName}`
 
-//     res.json({
-//       message: 'Upload thành công',
-//       filePath: result.secure_url
-//     })
-//   } catch (err) {
-//     res.status(500).json({ message: 'Lỗi khi upload', error: err.message })
-//   }
-// })
+    const result = await uploadToCloudinary(req.file.buffer, folder, Date.now().toString())
 
-// Router.post('/uploadArray', upload.array('files', 6), async (req, res) => {
-//   try {
-//     const { productName, productColor } = req.query
+    res.json({
+      message: 'Upload thành công',
+      filePath: result.secure_url
+    })
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi khi upload', error: err.message })
+  }
+})
 
-//     if (!req.files || req.files.length === 0)
-//       return res.status(400).json({ message: 'No files uploaded' })
+Router.post('/uploadArray', upload.array('files', 6), async (req, res) => {
+  try {
+    const { productName, productColor } = req.query
 
-//     const folder = `products/${productName}/${productName}-${productColor}`
+    if (!req.files || req.files.length === 0)
+      return res.status(400).json({ message: 'No files uploaded' })
 
-//     const uploadResults = await Promise.all(
-//       req.files.map(file =>
-//         uploadToCloudinary(file.buffer, folder, `${Date.now()}-${Math.round(Math.random() * 1e5)}`)
-//       )
-//     )
+    const folder = `products/${productName}/${productName}-${productColor}`
 
-//     const urls = uploadResults.map(result => result.secure_url)
+    const uploadResults = await Promise.all(
+      req.files.map(file =>
+        uploadToCloudinary(file.buffer, folder, `${Date.now()}-${Math.round(Math.random() * 1e5)}`)
+      )
+    )
 
-//     res.json({
-//       message: 'Upload thành công',
-//       filePaths: urls
-//     })
-//   } catch (err) {
-//     res.status(500).json({ message: 'Lỗi khi upload', error: err.message })
-//   }
-// })
+    const urls = uploadResults.map(result => result.secure_url)
+
+    res.json({
+      message: 'Upload thành công',
+      filePaths: urls
+    })
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi khi upload', error: err.message })
+  }
+})
 
 Router.route('/')
   .get(productController.getAllProduct)
-//   .post(productValidation.createNew, productController.createNew)
-
-Router.route('/getAllProductsBrand')
-  .get(productController.getAllProductsBrand)
-
-Router.route('/sliderType')
-  .get(productController.getLimitedProductsController)
-
-Router.route('/typeAndNavbarImageFromBrand')
-  .get(productController.getTypeFromNavbar)
+  .post(productValidation.createNew, productController.createNew)
 
 Router.route('/filter')
   .get(productController.getAllProductPage)
 
-// Router.route('/allProductQuantity')
-//   .get(productController.getAllProductQuantity)
+Router.route('/allProductQuantity')
+  .get(productController.getAllProductQuantity)
 
-// Router.route('/topBestSeller')
-//   .get(productController.getTopBestSeller)
-
-Router.route('/randomProductsWithBrand')
-  .get(productController.getRandomProductsWithBrand)
-
-Router.route('/searchProducts')
-  .get(productController.searchProducts)
+Router.route('/topBestSeller')
+  .get(productController.getTopBestSeller)
 
 Router.route('/:id')
   .get(productController.getDetails)
-  // .put(productValidation.updateProduct, productController.updateProduct)
-// Router.route('/:id/delete')
-//   .put(productController.deleteProduct)
-
-Router.route('/:id/quantitySold')
-  .put(productController.updateQuantitySold)
+  .put(productValidation.updateProduct, productController.updateProduct)
+  .delete(productController.deleteProduct)
 
 
-export const productRouter = Router
+export const productRouterAdmin = Router

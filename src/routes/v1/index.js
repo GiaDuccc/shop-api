@@ -8,13 +8,14 @@ import { cartRouter as cartRouterClient } from './Client/cartRouter'
 import { chatbotRouter as chatbotRouterClient } from './Client/chatbotRouter'
 import { authRouter as authRouterClient } from './Client/authRouter'
 
-import { productRouter as productRouterAdmin } from './Admin/productRouterAdmin'
-import { customerRouter as customerRouterAdmin } from './Admin/customerRouterAdmin'
-import { orderRouter as orderRouterAdmin } from './Admin/orderRouterAdmin'
-import { authRouterAdmin as authRouterAdmin } from './Admin/authRouterAdmin'
-
+import { productRouterAdmin } from './Admin/productRouterAdmin'
+import { customerRouterAdmin } from './Admin/customerRouterAdmin'
+import { orderRouterAdmin } from './Admin/orderRouterAdmin'
+import { authRouterAdmin } from './Admin/authRouterAdmin'
+import { employeeRouterAdmin } from './Admin/employeeRouterAdmin'
 
 const Router = express.Router()
+const adminRouter = express.Router()
 
 Router.get('/status', (req, res) => {
   res.status(StatusCodes.OK).json({ message: 'APIs_v1 are ready to use' })
@@ -32,12 +33,16 @@ Router.use('/chat', chatbotRouterClient)
 
 Router.use('/auth', authRouterClient)
 
-Router.use('/admin/products', productRouterAdmin)
+Router.use('/admin', adminRouter)
 
-Router.use('/admin/customers', customerRouterAdmin)
+adminRouter.use('/products', productRouterAdmin)
 
-Router.use('/admin/orders', orderRouterAdmin)
+adminRouter.use('/customers', customerRouterAdmin)
 
-Router.use('/admin/auth', authRouterAdmin)
+adminRouter.use('/orders', orderRouterAdmin)
+
+adminRouter.use('/auth', authRouterAdmin)
+
+adminRouter.use('/employees', employeeRouterAdmin)
 
 export const APIs_v1 = Router

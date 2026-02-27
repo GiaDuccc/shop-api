@@ -60,9 +60,9 @@ const createNew = async (data) => {
   try {
     const validData = await validateBeforeCreate(data)
 
-    const existEmail = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ email: data.email, _destroy: false })
+    const existEmail = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ email: data.email })
 
-    const existPhone = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ phone: data.phone, _destroy: false })
+    const existPhone = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ phone: data.phone })
 
     if (existEmail || existPhone) {
       const errors = {}
@@ -102,9 +102,7 @@ const getAllCustomerPage = async (page, limit, filters) => {
     sortOption = {}
   }
 
-  const matchConditions = {
-    _destroy: false // not equal
-  }
+  const matchConditions = {}
 
   if (search) {
     const orConditions = []
@@ -127,9 +125,7 @@ const getAllCustomerPage = async (page, limit, filters) => {
   ]
 
   const allCustomer = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).aggregate(allFilter).toArray()
-  const total = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).countDocuments({
-    _destroy: false
-  })
+  const total = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).countDocuments({})
 
   const result = {
     customers: allCustomer,
@@ -208,7 +204,6 @@ const deleteCustomer = async (customerId) => {
   if (result.deletedCount === 0) {
     throw new Error('Customer not found')
   }
-
   return 'Delete successful'
 }
 
@@ -299,9 +294,9 @@ const getCustomerChartByYear = async (startOfYear, endOfYear) => {
 }
 
 const updateCustomer = async (customerId, properties) => {
-  const existEmail = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ email: properties.email, _destroy: false })
+  const existEmail = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ email: properties.email })
 
-  const existPhone = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ phone: properties.phone, _destroy: false })
+  const existPhone = await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOne({ phone: properties.phone })
 
   if (existEmail || existPhone) {
     const errors = {}
@@ -314,8 +309,7 @@ const updateCustomer = async (customerId, properties) => {
 
   await GET_DB().collection(CUSTOMER_COLLECTION_NAME).findOneAndUpdate(
     {
-      _id: new ObjectId(customerId),
-      _destroy: false
+      _id: new ObjectId(customerId)
     },
     {
       $set: properties

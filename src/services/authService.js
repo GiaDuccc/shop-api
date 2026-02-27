@@ -1,9 +1,10 @@
 import { StatusCodes } from 'http-status-codes'
 import { customerModel } from '~/models/customerModel'
+import { employeeModel } from '~/models/employeeModel'
 import ApiError from '~/utils/ApiError'
 import { token } from '~/utils/token'
 
-const signIn = async (username, password) => {
+const signInClient = async (username, password) => {
   try {
     const customer = await customerModel.signIn(username, password)
 
@@ -79,9 +80,90 @@ const getCustomerInfoByToken = async (accessToken) => {
   }
 }
 
+const signInAdmin = async (username, password) => {
+  try {
+    const employee = await employeeModel.signIn(username, password)
+
+    if (!employee) {
+      throw new ApiError(401, 'Invalid Username or Password.')
+    }
+
+    const accessTokenAdmin = token.generateAccessTokenAdmin(employee)
+
+    const refreshTokenAdmin = token.generateRefreshTokenAdmin(employee)
+
+    await employeeModel.updateRefreshToken(employee._id, refreshTokenAdmin)
+    return { accessTokenAdmin, refreshTokenAdmin, employee }
+  } catch (error) {
+    if (error instanceof ApiError) { throw error }
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message)
+  }
+}
+
+
+const refreshTokenAdmin = async (refreshToken) => {
+  try {
+    const decoded = token.verifyRefreshTokenAdmin(refreshToken)
+
+    if (!decoded || typeof decoded !== 'object' || !decoded.sub) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid token')
+    }
+
+    const employee = await employeeModel.findOneById(decoded.sub)
+    if (!employee) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'The employee no longer exists')
+    }
+    const employeeRefreshToken = employee.refreshToken || ''
+    if (employeeRefreshToken !== refreshToken) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid refresh token')
+    }
+    const newAccessTokenAdmin = token.generateAccessTokenAdmin(employee)
+    const newRefreshTokenAdmin = token.generateRefreshTokenAdmin(employee)
+    await employeeModel.updateRefreshToken(employee._id, newRefreshTokenAdmin)
+    return { newAccessTokenAdmin, newRefreshTokenAdmin, employee }
+  } catch (error) {
+    if (error instanceof ApiError) { throw error }
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message)
+  }
+}
+
+const signOutAdmin= async (refreshToken) => {
+  try {
+    const decoded = token.verifyRefreshTokenAdmin(refreshToken)
+    if (!decoded || typeof decoded !== 'object' || !decoded.sub) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid token')
+    }
+    await employeeModel.updateRefreshToken(decoded.sub, null)
+  } catch (error) {
+    if (error instanceof ApiError) { throw error }
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message)
+  }
+}
+
+const getEmployeeInfoByToken = async (accessToken) => {
+  try {
+    const decoded = token.verifyAccessTokenAdmin(accessToken.split(' ')[1])
+    if (!decoded || typeof decoded !== 'object' || !decoded.sub) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid token')
+    }
+    const employee = await employeeModel.findOneById(decoded.sub)
+    if (!employee) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'The employee no longer exists')
+    }
+    return employee
+  } catch (error) {
+    if (error instanceof ApiError) { throw error }
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message)
+  }
+}
+
 export const authService = {
-  signIn,
+  signInClient,
   refreshTokenClient,
   signOutClient,
-  getCustomerInfoByToken
+  getCustomerInfoByToken,
+  signInAdmin,
+  refreshTokenAdmin,
+  signOutAdmin,
+  getEmployeeInfoByToken
 }

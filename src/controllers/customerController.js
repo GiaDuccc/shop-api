@@ -39,11 +39,8 @@ const getDetails = async (req, res, next) => {
 
 const deleteCustomer = async (req, res, next) => {
   try {
-
     const customerId = req.params.id
-
     const deleteCustomer = await customerModel.deleteCustomer(customerId)
-
     res.status(StatusCodes.OK).json(deleteCustomer)
   } catch (error) { next(error) }
 }
