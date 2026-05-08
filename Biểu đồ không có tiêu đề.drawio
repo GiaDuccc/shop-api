@@ -897,14 +897,14 @@
     </mxGraphModel>
   </diagram>
   <diagram id="gBsMR2JgZTDjL2g0v_ni" name="Trang-4">
-    <mxGraphModel dx="1802" dy="512" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="2847" dy="1061" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="yNFgxTRM5C0gmELlTun_-5" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="yNFgxTRM5C0gmELlTun_-4">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="yNFgxTRM5C0gmELlTun_-1" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="START" vertex="1">
+        <mxCell id="yNFgxTRM5C0gmELlTun_-1" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="BẮT ĐẦU" vertex="1">
           <mxGeometry height="40" width="120" x="320" y="200" as="geometry" />
         </mxCell>
         <mxCell id="yNFgxTRM5C0gmELlTun_-8" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="yNFgxTRM5C0gmELlTun_-7">
@@ -1015,6 +1015,13 @@
         <mxCell id="yNFgxTRM5C0gmELlTun_-36" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="ESP32 nhận kết quả FALSE" vertex="1">
           <mxGeometry height="40" width="210" x="630" y="1150" as="geometry" />
         </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-58" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-37" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="yNFgxTRM5C0gmELlTun_-50">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="735" y="1470" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
         <mxCell id="yNFgxTRM5C0gmELlTun_-37" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="ESP32 báo lỗi&amp;nbsp;&lt;div&gt;( Đèn đỏ, còi kêu )&lt;/div&gt;" vertex="1">
           <mxGeometry height="40" width="210" x="630" y="1220" as="geometry" />
         </mxCell>
@@ -1038,6 +1045,18 @@
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-56" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-40" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="yNFgxTRM5C0gmELlTun_-50">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="55" y="1470" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-57" connectable="0" parent="yNFgxTRM5C0gmELlTun_-56" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontColor=#FF0A0A;fontSize=15;" value="( FALSE )" vertex="1">
+          <mxGeometry relative="1" x="-0.7301" y="-2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
         <mxCell id="yNFgxTRM5C0gmELlTun_-40" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="Phát hiện vật cản qua cảm biến IR ?" vertex="1">
           <mxGeometry height="70" width="270" x="-80" y="1300" as="geometry" />
         </mxCell>
@@ -1050,11 +1069,8 @@
         <mxCell id="yNFgxTRM5C0gmELlTun_-48" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.543;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="yNFgxTRM5C0gmELlTun_-36">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="yNFgxTRM5C0gmELlTun_-50" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="START" vertex="1">
-          <mxGeometry height="40" width="120" x="510" y="1550" as="geometry" />
-        </mxCell>
-        <mxCell id="yNFgxTRM5C0gmELlTun_-51" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;rotation=90;size=13;" value="" vertex="1">
-          <mxGeometry height="100" width="50" x="55" y="895" as="geometry" />
+        <mxCell id="yNFgxTRM5C0gmELlTun_-50" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="KẾT THÚC" vertex="1">
+          <mxGeometry height="40" width="120" x="320" y="1450" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
