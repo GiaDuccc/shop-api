@@ -897,10 +897,165 @@
     </mxGraphModel>
   </diagram>
   <diagram id="gBsMR2JgZTDjL2g0v_ni" name="Trang-4">
-    <mxGraphModel dx="1030" dy="623" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1802" dy="512" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="yNFgxTRM5C0gmELlTun_-5" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="yNFgxTRM5C0gmELlTun_-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-1" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="START" vertex="1">
+          <mxGeometry height="40" width="120" x="320" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-8" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="yNFgxTRM5C0gmELlTun_-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="ESP32 đọc UID thẻ" vertex="1">
+          <mxGeometry height="40" width="120" x="320" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-6" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="yNFgxTRM5C0gmELlTun_-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-4" parent="1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Quẹt thẻ" vertex="1">
+          <mxGeometry height="40" width="120" x="320" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-10" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="yNFgxTRM5C0gmELlTun_-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-7" parent="1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="ESP32 gửi lệnh chụp ảnh lên server qua MQTT" vertex="1">
+          <mxGeometry height="40" width="320" x="220" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-13" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="yNFgxTRM5C0gmELlTun_-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="Server nhận UID" vertex="1">
+          <mxGeometry height="40" width="120" x="320" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-15" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="yNFgxTRM5C0gmELlTun_-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-11" parent="1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Server gửi lệnh chụp ảnh cho ESP32-CAM qua MQTT" vertex="1">
+          <mxGeometry height="40" width="330" x="215" y="530" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-17" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="yNFgxTRM5C0gmELlTun_-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-14" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="ESP32-CAM nhận lệnh và chụp ảnh" vertex="1">
+          <mxGeometry height="40" width="210" x="275" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-19" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="yNFgxTRM5C0gmELlTun_-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-16" parent="1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="ESP32-CAM gửi ảnh về Server qua HTTP" vertex="1">
+          <mxGeometry height="40" width="330" x="215" y="670" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-21" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="yNFgxTRM5C0gmELlTun_-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-18" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="Server kiểm tra UID" vertex="1">
+          <mxGeometry height="40" width="210" x="275" y="740" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-23" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="yNFgxTRM5C0gmELlTun_-22">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="745" y="845" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-24" connectable="0" parent="yNFgxTRM5C0gmELlTun_-23" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=15;fontColor=#FF0000;" value="&amp;nbsp;( FALSE )" vertex="1">
+          <mxGeometry relative="1" x="-0.2711" y="-3" as="geometry">
+            <mxPoint y="-3" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-27" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="yNFgxTRM5C0gmELlTun_-26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-32" connectable="0" parent="yNFgxTRM5C0gmELlTun_-27" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=14;fontColor=#01D607;" value="( TRUE )" vertex="1">
+          <mxGeometry relative="1" x="-0.2667" y="-1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-20" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="Chưa có trong bãi / status = &quot;out&quot;" vertex="1">
+          <mxGeometry height="70" width="270" x="245" y="810" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-22" parent="1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Server gửi kết quả FALSE cho ESP32 qua MQTT" vertex="1">
+          <mxGeometry height="40" width="330" x="580" y="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-29" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="yNFgxTRM5C0gmELlTun_-28">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-26" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="Server kiểm tra nhận diện biển số" vertex="1">
+          <mxGeometry height="40" width="210" x="275" y="930" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-28" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="Nhận diện biển số thành công ?" vertex="1">
+          <mxGeometry height="70" width="270" x="245" y="1000" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-30" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.382;entryY=0.021;entryDx=0;entryDy=0;entryPerimeter=0;" target="yNFgxTRM5C0gmELlTun_-22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-31" connectable="0" parent="yNFgxTRM5C0gmELlTun_-30" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=15;fontColor=#FF0202;" value="( FALSE )" vertex="1">
+          <mxGeometry relative="1" x="0.058" y="-3" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-33" parent="1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Server gửi kết quả FALSE cho ESP32 qua MQTT" vertex="1">
+          <mxGeometry height="40" width="330" x="-100" y="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-34" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.473;entryY=-0.001;entryDx=0;entryDy=0;entryPerimeter=0;" target="yNFgxTRM5C0gmELlTun_-33">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-35" connectable="0" parent="yNFgxTRM5C0gmELlTun_-34" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=15;fontColor=#02E007;" value="( TRUE )" vertex="1">
+          <mxGeometry relative="1" x="-0.0383" y="-1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-49" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-36" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="yNFgxTRM5C0gmELlTun_-37">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-36" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="ESP32 nhận kết quả FALSE" vertex="1">
+          <mxGeometry height="40" width="210" x="630" y="1150" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-37" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="ESP32 báo lỗi&amp;nbsp;&lt;div&gt;( Đèn đỏ, còi kêu )&lt;/div&gt;" vertex="1">
+          <mxGeometry height="40" width="210" x="630" y="1220" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-46" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-38" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="yNFgxTRM5C0gmELlTun_-39">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-38" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="ESP32 nhận kết quả TRUE" vertex="1">
+          <mxGeometry height="40" width="210" x="-50" y="1150" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-47" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-39" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="yNFgxTRM5C0gmELlTun_-40">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-39" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="ESP32 mở cổng&amp;nbsp;&lt;div&gt;( Servo mở trong 5s, bật đèn xanh )&lt;/div&gt;" vertex="1">
+          <mxGeometry height="40" width="210" x="-50" y="1220" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-43" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-40" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="yNFgxTRM5C0gmELlTun_-41">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-44" connectable="0" parent="yNFgxTRM5C0gmELlTun_-43" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=15;fontColor=light-dark(#00bd0d, #ededed);" value="( TRUE )" vertex="1">
+          <mxGeometry relative="1" x="-0.1259" y="-2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-40" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="Phát hiện vật cản qua cảm biến IR ?" vertex="1">
+          <mxGeometry height="70" width="270" x="-80" y="1300" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-41" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="ESP32 cảnh báo&lt;div&gt;( Còi kêu, đèn vàng nháy )&lt;/div&gt;" vertex="1">
+          <mxGeometry height="40" width="210" x="290" y="1315" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-45" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.546;entryY=-0.025;entryDx=0;entryDy=0;entryPerimeter=0;" target="yNFgxTRM5C0gmELlTun_-38">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-48" edge="1" parent="1" source="yNFgxTRM5C0gmELlTun_-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.543;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="yNFgxTRM5C0gmELlTun_-36">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-50" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="START" vertex="1">
+          <mxGeometry height="40" width="120" x="510" y="1550" as="geometry" />
+        </mxCell>
+        <mxCell id="yNFgxTRM5C0gmELlTun_-51" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;rotation=90;size=13;" value="" vertex="1">
+          <mxGeometry height="100" width="50" x="55" y="895" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
